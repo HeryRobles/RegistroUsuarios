@@ -3,6 +3,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using Registro.DAL.DBContext;
 using Registro.Utility;
+using Registro.DAL.Repository.IRepository;
+using Registro.DAL.Repository;
 
 
 namespace Registro.IOC
@@ -15,6 +17,8 @@ namespace Registro.IOC
             {
                 options.UseSqlServer(configuration.GetConnectionString("cadenaSQL"));
             });
+             
+            services.AddTransient(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
             services.AddAutoMapper(typeof(AutoMapperProfile));
         }

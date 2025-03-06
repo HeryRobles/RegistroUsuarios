@@ -11,7 +11,7 @@ namespace Registro.Utility
         {
             #region Rol
             CreateMap<Rol, RolDTO>().ReverseMap();
-            #endregion Rol
+            #endregion Rol 
 
             #region Menu
             CreateMap<Menu, MenuDTO>().ReverseMap();
