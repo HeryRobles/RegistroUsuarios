@@ -12,8 +12,8 @@ namespace Registro.DAL.Repository.IRepository
     {
         Task<TModel> Obtener(Expression<Func<TModel, bool>> filtro);
         Task<TModel> Crear(TModel modelo);
-        Task<TModel> Editar(TModel modelo);
-        Task<TModel> Eliminar(TModel modelo);
+        Task<bool> Editar(TModel modelo);
+        Task<bool> Eliminar(TModel modelo);
         Task<IQueryable<TModel>> Consultar(Expression<Func<TModel, bool>> filtro = null);
     }
 }

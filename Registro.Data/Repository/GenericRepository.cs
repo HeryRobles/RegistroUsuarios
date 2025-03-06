@@ -11,58 +11,34 @@ using System.Linq.Expressions;
 
 namespace Registro.DAL.Repository
 {
-    public class GenericRepository<TModel> : IGenericRepository<TModel> where TModel : class
+    public class GenericRepository<TModelo> : IGenericRepository<TModelo> where TModelo : class
     {
         private readonly ApplicationDbContext _dbcontext;
         public GenericRepository(ApplicationDbContext dbcontext)
         {
             _dbcontext = dbcontext;
         }
-        public async Task<TModel> Obtener(Expression<Func<TModel, bool>> filtro)
-        {
-            try
-            {
-                TModel modelo = await _dbcontext.Set<TModel>().FirstOrDefaultAsync(filtro);
-                return modelo;
-            }
-            catch
-            {
-                throw;
-            }
-        }
-        public async Task<TModel> Crear(TModel modelo)
-        {
-            try
-            {
-                _dbcontext.Set<TModel>().Add(modelo);
-                await _dbcontext.SaveChangesAsync();
-                return modelo;
 
-            }
-            catch
-            {
-                throw;
-            }
-        }
-        public async Task<TModel> Editar(TModel modelo)
-        {
-            try
-            {
-                _dbcontext.Set<TModel>().Update(modelo);
-                await _dbcontext.SaveChangesAsync();
-                return modelo;
 
+        public async Task<TModelo> Obtener(Expression<Func<TModelo, bool>> filtro)
+        {
+            try
+            {
+                TModelo? modelo = await _dbcontext.Set<TModelo>().FirstOrDefaultAsync(filtro);
+                return modelo!;
             }
             catch
             {
                 throw;
             }
+
         }
-        public async Task<TModel> Eliminar(TModel modelo)
+
+        public async Task<TModelo> Crear(TModelo modelo)
         {
             try
             {
-                _dbcontext.Set<TModel>().Remove(modelo);
+                _dbcontext.Set<TModelo>().Add(modelo);
                 await _dbcontext.SaveChangesAsync();
                 return modelo;
             }
@@ -71,21 +47,48 @@ namespace Registro.DAL.Repository
                 throw;
             }
         }
-        public Task<IQueryable<TModel>> Consultar(Expression<Func<TModel, bool>> filtro = null)
+
+        public async Task<bool> Editar(TModelo modelo)
         {
             try
             {
-                IQueryable<TModel> queryModelo = _dbcontext.Set<TModel>();
-                if (filtro != null)
-                {
-                    queryModelo = queryModelo.Where(filtro);
-                }
-                return Task.FromResult(queryModelo);
+                _dbcontext.Set<TModelo>().Update(modelo);
+                await _dbcontext.SaveChangesAsync();
+                return true;
             }
             catch
             {
                 throw;
             }
         }
+
+        public async Task<bool> Eliminar(TModelo modelo)
+        {
+            try
+            {
+                _dbcontext.Set<TModelo>().Remove(modelo);
+                await _dbcontext.SaveChangesAsync();
+                return true;
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public async Task<IQueryable<TModelo>> Consultar(Expression<Func<TModelo, bool>> filtro = null)
+        {
+            try
+            {
+                IQueryable<TModelo> query = filtro == null ? _dbcontext.Set<TModelo>(): 
+                    _dbcontext.Set<TModelo>().Where(filtro);
+                return query;
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
     }
 }

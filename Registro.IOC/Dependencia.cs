@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using Registro.DAL.DBContext;
+using Registro.Utility;
 
 
 namespace Registro.IOC
@@ -14,6 +15,8 @@ namespace Registro.IOC
             {
                 options.UseSqlServer(configuration.GetConnectionString("cadenaSQL"));
             });
+
+            services.AddAutoMapper(typeof(AutoMapperProfile));
         }
     }
 }

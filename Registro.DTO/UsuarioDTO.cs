@@ -20,7 +20,7 @@ namespace Registro.DTO
 
         public string? Clave { get; set; }
 
-        public bool? EsActivo { get; set; }
+        public int? EsActivo { get; set; }
       
     }
 }
