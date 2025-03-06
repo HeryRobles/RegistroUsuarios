@@ -5,6 +5,8 @@ using Registro.DAL.DBContext;
 using Registro.Utility;
 using Registro.DAL.Repository.IRepository;
 using Registro.DAL.Repository;
+using Registro.BLL.Services.ServicesContracts;
+using Registro.BLL.Services;
 
 
 namespace Registro.IOC
@@ -17,10 +19,17 @@ namespace Registro.IOC
             {
                 options.UseSqlServer(configuration.GetConnectionString("cadenaSQL"));
             });
-             
+
+            //DEPENDENCIAS DE LOS REPOSITORIOS DE LA CAPA DE DATOS
             services.AddTransient(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
+            //DEPENDENCIAS DE LAS UTILERÍAS DE LA CAPA DE UTILIDADES PARA EL MAPPING
             services.AddAutoMapper(typeof(AutoMapperProfile));
+
+            //Dependencias de los servicios
+            services.AddScoped<IRolService, RolService>();
+            services.AddScoped<IUsuarioService, UsuarioService>();
+            services.AddScoped<IMenuService, MenuService>();
         }
     }
 }
