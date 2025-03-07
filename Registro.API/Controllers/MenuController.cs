@@ -11,6 +11,30 @@ namespace Registro.API.Controllers
     [ApiController]
     public class MenuController : ControllerBase
     {
+        private readonly IMenuService _menuService;
 
+        public MenuController(IMenuService menuService)
+        {
+            _menuService = menuService;
+        }
+
+        [HttpGet]
+        [Route("Lista")]
+        public async Task<IActionResult> Lista(int idUsuario)
+        {
+            var response = new HttpResponseWrapper<List<MenuDTO>>();
+
+            try
+            {
+                response.status = true;
+                response.value = await _menuService.Lista(idUsuario);
+            }
+            catch (Exception ex)
+            {
+                response.status = false;
+                response.HttpResponseMessage = ex.Message;
+            }
+            return Ok(response);
+        }
     }
 }

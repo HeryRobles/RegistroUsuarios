@@ -14,6 +14,8 @@ public class ApplicationDbContext : DbContext
     public DbSet<Rol> Roles { get; set; }
     public DbSet<Menu> Menus { get; set; }
     public DbSet<MenuRol> MenuRoles { get; set; }
+    public DbSet<Pelicula> Peliculas { get; set; }
+    public DbSet<Comentario> Comentarios { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) { }
 
@@ -102,6 +104,51 @@ public class ApplicationDbContext : DbContext
             entity.HasOne(d => d.IdRolNavigation)
                 .WithMany(p => p.MenuRoles)
                 .HasForeignKey(d => d.IdRol);
+        });
+
+        // Config tabla Pelicula
+        modelBuilder.Entity<Pelicula>(entity =>
+        {
+            entity.HasKey(e => e.IdPelicula);
+            entity.Property(e => e.Titulo)
+                .HasMaxLength(200)
+                .IsUnicode(false);
+            entity.Property(e => e.Sinopsis)
+                .HasColumnType("text");
+            entity.Property(e => e.Reseña)
+                .HasColumnType("text");
+            entity.Property(e => e.ImagenUrl)
+                .HasMaxLength(500)
+                .IsUnicode(false);
+            entity.Property(e => e.TrailerUrl)
+                .HasMaxLength(500)
+                .IsUnicode(false);
+            entity.Property(e => e.Calificacion)
+                .HasDefaultValue(0.0);
+            entity.Property(e => e.EsActiva)
+                .HasDefaultValue(true);
+            entity.Property(e => e.FechaEstreno)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+        });
+
+        // Config tabla Comentario
+        modelBuilder.Entity<Comentario>(entity =>
+        {
+            entity.HasKey(e => e.IdComentario);
+            entity.Property(e => e.Texto)
+                .HasColumnType("text");
+            entity.Property(e => e.Calificacion)
+                .HasDefaultValue(0.0);
+            entity.Property(e => e.FechaComentario)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.HasOne(d => d.Pelicula)
+                .WithMany(p => p.Comentarios)
+                .HasForeignKey(d => d.IdPelicula);
+            entity.HasOne(d => d.Usuario)
+                .WithMany()
+                .HasForeignKey(d => d.IdUsuario);
         });
 
         base.OnModelCreating(modelBuilder);
