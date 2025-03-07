@@ -13,8 +13,10 @@ namespace Registro.IOC
 {
     public static class Dependencia
     {
+        //Método para inyectar las dependencias
         public static void InyectarDependencias(this IServiceCollection services, IConfiguration configuration)
         {
+            //CONEXIÓN A LA BASE DE DATOS
             services.AddDbContext<ApplicationDbContext>(options =>
             {
                 options.UseSqlServer(configuration.GetConnectionString("cadenaSQL"));

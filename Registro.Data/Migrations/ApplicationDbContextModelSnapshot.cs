@@ -71,7 +71,7 @@ namespace Registro.DAL.Migrations
 
                     b.HasIndex("IdRol");
 
-                    b.ToTable("MenuRoles");
+                    b.ToTable("MenuRoles", (string)null);
                 });
 
             modelBuilder.Entity("Registro.Model.Entities.Rol", b =>
@@ -94,7 +94,7 @@ namespace Registro.DAL.Migrations
 
                     b.HasKey("IdRol");
 
-                    b.ToTable("Roles");
+                    b.ToTable("Roles", (string)null);
                 });
 
             modelBuilder.Entity("Registro.Model.Entities.Usuario", b =>
