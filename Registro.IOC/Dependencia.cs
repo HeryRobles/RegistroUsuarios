@@ -32,6 +32,7 @@ namespace Registro.IOC
             services.AddScoped<IRolService, RolService>();
             services.AddScoped<IUsuarioService, UsuarioService>();
             services.AddScoped<IMenuService, MenuService>();
+            services.AddScoped<IPeliculaService, PeliculaService>();
         }
     }
 }

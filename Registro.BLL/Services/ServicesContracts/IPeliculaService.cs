@@ -7,7 +7,7 @@ using Registro.DTO;
 
 namespace Registro.BLL.Services.ServicesContracts
 {
-    public interface IPeliculaServices
+    public interface IPeliculaService
     {
         Task<List<PeliculaDTO>> Lista();
         Task<PeliculaDTO> Obtener(int id);

@@ -7,7 +7,7 @@ using Registro.Model.Entities;
 
 namespace Registro.BLL.Services
 {
-    public class PeliculaService : IPeliculaServices
+    public class PeliculaService : IPeliculaService
     {
         private readonly IGenericRepository<Pelicula> _peliculaRepository;
         private readonly IMapper _mapper;
