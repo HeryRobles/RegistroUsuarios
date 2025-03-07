@@ -1,9 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using Registro.API.Utilities;
 using Registro.BLL.Services.ServicesContracts;
 using Registro.DTO;
-using Registro.API.Utilities;
-using Registro.BLL.Services;
 
 namespace Registro.API.Controllers
 {
@@ -18,9 +16,8 @@ namespace Registro.API.Controllers
             _usuarioService = usuarioService;
         }
 
-        [HttpGet]
-        [Route("Lista")]
-        public async Task<IActionResult> Lista()
+        [HttpGet("Lista")]
+        public async Task<ActionResult<HttpResponseWrapper<List<UsuarioDTO>>>> Lista()
         {
             var response = new HttpResponseWrapper<List<UsuarioDTO>>();
 
@@ -28,18 +25,18 @@ namespace Registro.API.Controllers
             {
                 response.status = true;
                 response.value = await _usuarioService.Lista();
+                return Ok(response);
             }
             catch (Exception ex)
             {
                 response.status = false;
                 response.HttpResponseMessage = ex.Message;
+                return BadRequest(response);
             }
-            return Ok(response);
         }
 
-        [HttpPost]
-        [Route("IniciarSesion")]
-        public async Task<IActionResult> IniciarSesion([FromBody] LoginDTO login)
+        [HttpPost("IniciarSesion")]
+        public async Task<ActionResult<HttpResponseWrapper<SesionDTO>>> IniciarSesion([FromBody] LoginDTO login)
         {
             var response = new HttpResponseWrapper<SesionDTO>();
 
@@ -47,18 +44,18 @@ namespace Registro.API.Controllers
             {
                 response.status = true;
                 response.value = await _usuarioService.ValidarCredenciales(login.Correo, login.Clave);
+                return Ok(response);
             }
             catch (Exception ex)
             {
                 response.status = false;
                 response.HttpResponseMessage = ex.Message;
+                return Unauthorized(response);
             }
-            return Ok(response);
         }
 
-        [HttpPost]
-        [Route("Guardar")]
-        public async Task<IActionResult> Guardar([FromBody] UsuarioDTO usuario)
+        [HttpPost("Guardar")]
+        public async Task<ActionResult<HttpResponseWrapper<UsuarioDTO>>> Guardar([FromBody] UsuarioDTO usuario)
         {
             var response = new HttpResponseWrapper<UsuarioDTO>();
 
@@ -66,18 +63,18 @@ namespace Registro.API.Controllers
             {
                 response.status = true;
                 response.value = await _usuarioService.Crear(usuario);
+                return CreatedAtAction(nameof(Guardar), new { id = response.value.IdUsuario }, response);
             }
             catch (Exception ex)
             {
                 response.status = false;
                 response.HttpResponseMessage = ex.Message;
+                return BadRequest(response);
             }
-            return Ok(response);
         }
 
-        [HttpPut]
-        [Route("Editar")]
-        public async Task<IActionResult> Editar([FromBody] UsuarioDTO usuario)
+        [HttpPut("Editar")]
+        public async Task<ActionResult<HttpResponseWrapper<bool>>> Editar([FromBody] UsuarioDTO usuario)
         {
             var response = new HttpResponseWrapper<bool>();
 
@@ -85,18 +82,18 @@ namespace Registro.API.Controllers
             {
                 response.status = true;
                 response.value = await _usuarioService.Editar(usuario);
+                return Ok(response);
             }
             catch (Exception ex)
             {
                 response.status = false;
                 response.HttpResponseMessage = ex.Message;
+                return BadRequest(response);
             }
-            return Ok(response);
         }
 
-        [HttpDelete]
-        [Route("Eliminar")]
-        public async Task<IActionResult> Eliminar(int id)
+        [HttpDelete("Eliminar/{id}")]
+        public async Task<ActionResult<HttpResponseWrapper<bool>>> Eliminar(int id)
         {
             var response = new HttpResponseWrapper<bool>();
 
@@ -104,13 +101,18 @@ namespace Registro.API.Controllers
             {
                 response.status = true;
                 response.value = await _usuarioService.Eliminar(id);
+
+                if (!response.value)
+                    return NotFound(new { status = false, message = "Usuario no encontrado." });
+
+                return Ok(response);
             }
             catch (Exception ex)
             {
                 response.status = false;
                 response.HttpResponseMessage = ex.Message;
+                return BadRequest(response);
             }
-            return Ok(response);
         }
     }
 }

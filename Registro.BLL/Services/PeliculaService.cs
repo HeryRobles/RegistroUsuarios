@@ -17,30 +17,84 @@ namespace Registro.BLL.Services
             _peliculaRepository = peliculaRepository;
             _mapper = mapper;
         }
-
-        public Task<PeliculaDTO> Crear(PeliculaDTO modelo)
+         
+        public async Task<List<PeliculaDTO>> Lista()
         {
-            throw new NotImplementedException();
-        }
-
-        public Task<bool> Editar(PeliculaDTO modelo)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<bool> Eliminar(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<List<PeliculaDTO>> Lista()
-        {
-            throw new NotImplementedException();
+            try
+            {
+                var queryPelicula = await _peliculaRepository.Consultar();
+                var listaPelicula = queryPelicula.ToList();
+                return _mapper.Map<List<PeliculaDTO>>(listaPelicula);
+            }
+            catch
+            {
+                throw;
+            }
         }
 
         public Task<PeliculaDTO> Obtener(int id)
         {
             throw new NotImplementedException();
         }
+
+        public async Task<PeliculaDTO> Crear(PeliculaDTO modelo)
+        {
+            try
+            {
+                var peliculaCreada = await _peliculaRepository.Crear(_mapper.Map<Pelicula>(modelo));
+
+                if(peliculaCreada.IdPelicula == 0)
+                    throw new TaskCanceledException("No se pudo crear la pelicula");
+
+                return _mapper.Map<PeliculaDTO>(peliculaCreada);
+
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public async Task<bool> Editar(PeliculaDTO modelo)
+        {
+            try
+            {
+                var peliculaModelo = _mapper.Map<Pelicula>(modelo);
+                var peliculaEncontrada = await _peliculaRepository.Obtener(p => 
+                p.IdPelicula == peliculaModelo.IdPelicula);
+
+                if(peliculaEncontrada.IdPelicula == 0)
+                    throw new TaskCanceledException("La pelicula no existe");
+
+                peliculaEncontrada.Titulo = peliculaModelo.Titulo;
+                peliculaEncontrada.Sinopsis = peliculaModelo.Sinopsis;
+                peliculaEncontrada.Reseña = peliculaModelo.Reseña;
+
+                bool respuesta = await _peliculaRepository.Editar(peliculaEncontrada);
+
+                if(respuesta)
+                    throw new TaskCanceledException("No se pudo editar la pelicula");
+
+                return respuesta;
+            }
+            catch
+            {
+                throw;
+            }
+        }
+        public async Task<bool> Eliminar(int id)
+        {
+            var peliculaEncontrada = await _peliculaRepository.Obtener(p => p.IdPelicula == id);
+
+            if(peliculaEncontrada == null)
+                throw new TaskCanceledException("La pelicula no existe");
+            bool respuesta = await _peliculaRepository.Eliminar(peliculaEncontrada);
+
+            if (respuesta)
+                throw new TaskCanceledException("No se pudo eliminar");
+
+            return respuesta;
+        }
+       
     }
 }

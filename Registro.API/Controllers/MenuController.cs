@@ -20,21 +20,26 @@ namespace Registro.API.Controllers
 
         [HttpGet]
         [Route("Lista")]
-        public async Task<IActionResult> Lista(int idUsuario)
+        public async Task<ActionResult<HttpResponseWrapper<List<MenuDTO>>>> Lista(int idUsuario)
         {
             var response = new HttpResponseWrapper<List<MenuDTO>>();
 
             try
             {
+                var listaMenus = await _menuService.Lista(idUsuario);
+
                 response.status = true;
-                response.value = await _menuService.Lista(idUsuario);
+                response.value = listaMenus;
+
+                return Ok(response);
             }
             catch (Exception ex)
             {
                 response.status = false;
                 response.HttpResponseMessage = ex.Message;
+
+                return BadRequest(response);
             }
-            return Ok(response);
         }
     }
 }

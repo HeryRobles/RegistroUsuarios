@@ -10,11 +10,13 @@ namespace Registro.BLL.Services
     public class UsuarioService : IUsuarioService
     {
         private readonly IGenericRepository<Usuario> _usuarioRepository;
+        private readonly IGenericRepository<Rol> _rolRepository;
         private readonly IMapper _mapper;
 
-        public UsuarioService(IGenericRepository<Usuario> usuarioRepository, IMapper mapper)
+        public UsuarioService(IGenericRepository<Usuario> usuarioRepository, IGenericRepository<Rol> rolRepository, IMapper mapper)
         {
             _usuarioRepository = usuarioRepository;
+            _rolRepository = rolRepository;
             _mapper = mapper;
         }
 
@@ -22,55 +24,87 @@ namespace Registro.BLL.Services
         {
             try
             {
-                var queryUsuario = await _usuarioRepository.Consultar();
-                var listaUsuario = queryUsuario.Include(rol => rol.IdRolNavigation).ToList();
+                var usuarios = await _usuarioRepository.Consultar();
+                var listaUsuario = usuarios.Include(rol => rol.IdRolNavigation).ToListAsync();
                 return _mapper.Map<List<UsuarioDTO>>(listaUsuario);
             }
-            catch
+            catch (Exception ex)
             {
-                throw;
+                throw new Exception("Error al obtener la lista de usuarios", ex);
             }
+            
         }
 
         public async Task<SesionDTO> ValidarCredenciales(string correo, string clave)
         {
             try
             {
-                var queryUsuario = await _usuarioRepository.Consultar(u => u.Correo == correo
+                var usuario = await _usuarioRepository.Consultar(u => u.Correo == correo
                 && u.Clave == clave
                 );
 
-                if (queryUsuario.FirstOrDefault() == null)
-                    throw new TaskCanceledException("El Usuario no existe");
+                //if (usuario.FirstOrDefaultAsync() == null)
+                //    throw new TaskCanceledException("El Usuario no existe");
 
-                Usuario returnUsuario = queryUsuario.Include(rol => rol.IdRolNavigation).First();
+                Usuario returnUsuario = usuario.Include(rol => rol.IdRolNavigation).First();
 
                 return _mapper.Map<SesionDTO>(returnUsuario);
             }
-            catch
+            catch (Exception ex)
             {
-                throw;
+                throw new Exception("Error al validar credenciales", ex);
             }
         }
+        public async Task<bool> AsignarRol(int usuarioId, int nuevoRolId)
+        {
+            try
+            {
+                var usuario = await _usuarioRepository.Obtener(u => u.IdUsuario == usuarioId);
+                if (usuario == null)
+                    throw new TaskCanceledException("El usuario no existe");
+
+                var rolExiste = await _rolRepository.Obtener(r => r.IdRol == nuevoRolId);
+                if (rolExiste == null)
+                    throw new TaskCanceledException("El rol especificado no existe");
+
+                usuario.IdRol = nuevoRolId;
+
+                bool respuesta = await _usuarioRepository.Editar(usuario);
+                
+
+                return respuesta;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error en la asignación de roles", ex);
+            }
+        }
+
+
         public async Task<UsuarioDTO> Crear(UsuarioDTO modelo)
         {
             try
             {
-                var usuarioCreado = await _usuarioRepository.Crear(_mapper.Map<Usuario>(modelo));
+                var usuarioModelo = _mapper.Map<Usuario>(modelo);
+                var usuarioCreado = await _usuarioRepository.Crear(usuarioModelo);
 
 
                 if (usuarioCreado.IdUsuario == 0)
                     throw new TaskCanceledException("Error al crear el usuario");
 
-                var query = await _usuarioRepository.Consultar(u => u.IdUsuario == usuarioCreado.IdUsuario);
 
-                usuarioCreado = query.Include(rol => rol.IdRolNavigation).First();
+                var usuarioConRol = await _usuarioRepository
+                    .Consultar(u => u.IdUsuario == usuarioCreado.IdUsuario);
+                    //.Include(u => u.IdRolNavigation)
+                    //.FirstOrDefaultAsync();
+
+                usuarioCreado = usuarioConRol.Include(rol => rol.IdRolNavigation).First();
 
                 return _mapper.Map<UsuarioDTO>(usuarioCreado);
             }
-            catch
+            catch (Exception ex)
             {
-                throw;
+                throw new Exception("Error al crear el usuario", ex);
             }
         }
 
@@ -92,14 +126,12 @@ namespace Registro.BLL.Services
 
                 bool respuesta = await _usuarioRepository.Editar(usuarioEncontrado);
 
-                if (!respuesta)
-                    throw new TaskCanceledException("Error al editar el usuario");
-
+                
                 return respuesta;
             }
-            catch
+            catch (Exception ex)
             {
-                throw;
+                throw new Exception("Error al editar el usuario", ex);
             }
         }
 
@@ -113,14 +145,12 @@ namespace Registro.BLL.Services
                     throw new TaskCanceledException("El usuario no existe");
 
                 bool respuesta = await _usuarioRepository.Eliminar(usuarioEncontrado);
-                if (!respuesta)
-                    throw new TaskCanceledException("Error al eliminar el usuario");
-
+                
                 return respuesta;
             }
-            catch
+            catch (Exception ex)
             {
-                throw;
+                throw new Exception("Error al eliminar el usuario", ex);
             }
         }
     }

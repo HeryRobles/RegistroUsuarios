@@ -48,6 +48,11 @@ namespace Registro.Utility
             #region Pelicula
             CreateMap<Pelicula, PeliculaDTO>().ReverseMap();
             #endregion Pelicula
+
+            #region Comentario
+            CreateMap<Comentario, ComentarioDTO>().ReverseMap();
+            #endregion Comentario
+
         }
 
     }
