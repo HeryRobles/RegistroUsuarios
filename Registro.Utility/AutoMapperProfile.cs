@@ -45,7 +45,9 @@ namespace Registro.Utility
                 );
             #endregion Usuario
 
-
+            #region Pelicula
+            CreateMap<Pelicula, PeliculaDTO>().ReverseMap();
+            #endregion Pelicula
         }
 
     }
