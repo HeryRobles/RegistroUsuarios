@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Registro.DTO
+﻿namespace Registro.DTO
 {
     public class UsuarioDTO
     {
@@ -21,6 +15,6 @@ namespace Registro.DTO
         public string? Clave { get; set; }
 
         public int? EsActivo { get; set; }
-      
+
     }
 }

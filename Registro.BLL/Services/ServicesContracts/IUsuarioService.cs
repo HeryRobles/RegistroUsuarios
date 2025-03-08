@@ -14,5 +14,6 @@ namespace Registro.BLL.Services.ServicesContracts
         Task<UsuarioDTO> Crear(UsuarioDTO modelo);
         Task<bool> Editar(UsuarioDTO modelo);
         Task<bool> Eliminar(int id);
+        Task<bool> AsignarRol(int usuarioId, int nuevoRolId);
     }
 }

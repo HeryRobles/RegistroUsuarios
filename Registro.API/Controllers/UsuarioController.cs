@@ -82,6 +82,7 @@ namespace Registro.API.Controllers
          * este usuario se registra con el rol de cliente por defecto, el cual tendra acceso a el catalogo de peliculas
          * y podrá comentar y calificarlas cuando inicie sesión.
          * */
+        
         [HttpPost("Registrar")]
         public async Task<ActionResult<HttpResponseWrapper<UsuarioDTO>>> Registrar([FromBody] RegistroUsuariosDTO registro)
         {
@@ -128,7 +129,7 @@ namespace Registro.API.Controllers
                 return BadRequest(response);
             }
         }
-
+        [Authorize(Roles = "Administrador")]
         [HttpPut("Editar")]
         public async Task<ActionResult<HttpResponseWrapper<bool>>> Editar([FromBody] UsuarioDTO usuario)
         {
@@ -147,7 +148,35 @@ namespace Registro.API.Controllers
                 return BadRequest(response);
             }
         }
+        [Authorize(Roles = "Administrador")] 
+        [HttpPost("AsignarRol")]
+        public async Task<ActionResult<HttpResponseWrapper<bool>>> AsignarRol([FromQuery] int usuarioId, [FromQuery] int nuevoRolId)
+        {
+            var response = new HttpResponseWrapper<bool>();
 
+            try
+            {
+                response.status = true;
+                response.value = await _usuarioService.AsignarRol(usuarioId, nuevoRolId);
+
+                if (!response.value)
+                {
+                    response.status = false;
+                    response.HttpResponseMessage = "No se pudo asignar el rol al usuario.";
+                    return BadRequest(response);
+                }
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                response.status = false;
+                response.HttpResponseMessage = ex.Message;
+                return BadRequest(response);
+            }
+        }
+
+        [Authorize(Roles = "Administrador")]
         [HttpDelete("Eliminar/{id}")]
         public async Task<ActionResult<HttpResponseWrapper<bool>>> Eliminar(int id)
         {

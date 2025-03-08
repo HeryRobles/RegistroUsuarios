@@ -27,10 +27,10 @@ namespace Registro.BLL.Services
                 var query = await _usuarioRepository.Consultar();
 
                 var usuarios = await query
-                    .Include(u => u.IdRolNavigation) 
-                    .ToListAsync(); 
+                    .Include(u => u.IdRolNavigation)
+                    .ToListAsync();
 
-                return _mapper.Map<List<UsuarioDTO>>(usuarios); 
+                return _mapper.Map<List<UsuarioDTO>>(usuarios);
             }
             catch (Exception ex)
             {
@@ -70,7 +70,7 @@ namespace Registro.BLL.Services
                 usuario.IdRol = nuevoRolId;
 
                 bool respuesta = await _usuarioRepository.Editar(usuario);
-                
+
 
                 return respuesta;
             }
@@ -95,7 +95,7 @@ namespace Registro.BLL.Services
 
                 var usuarioConRol = await _usuarioRepository
                     .Consultar(u => u.IdUsuario == usuarioCreado.IdUsuario);
-                  
+
                 usuarioCreado = usuarioConRol.Include(rol => rol.IdRolNavigation).First();
 
                 return _mapper.Map<UsuarioDTO>(usuarioCreado);
@@ -124,7 +124,7 @@ namespace Registro.BLL.Services
 
                 bool respuesta = await _usuarioRepository.Editar(usuarioEncontrado);
 
-                
+
                 return respuesta;
             }
             catch (Exception ex)
@@ -143,7 +143,7 @@ namespace Registro.BLL.Services
                     throw new TaskCanceledException("El usuario no existe");
 
                 bool respuesta = await _usuarioRepository.Eliminar(usuarioEncontrado);
-                
+
                 return respuesta;
             }
             catch (Exception ex)

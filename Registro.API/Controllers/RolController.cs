@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Registro.BLL.Services.ServicesContracts;
 using Registro.DTO;
 using Registro.API.Utilities;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace Registro.API.Controllers
@@ -17,7 +18,7 @@ namespace Registro.API.Controllers
         {
             _rolService = rolService;
         }
-
+        [Authorize(Roles = "Administrador, Supervisor")]
         [HttpGet]
         [Route("Lista")]
         public async Task<ActionResult<HttpResponseWrapper<List<RolDTO>>>> Lista()
