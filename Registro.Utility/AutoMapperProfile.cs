@@ -21,8 +21,8 @@ namespace Registro.Utility
             CreateMap<Usuario, UsuarioDTO>()
                 .ForMember(destino =>//destino:UsuarioDTO
                 destino.RolDescripcion,
-                opt => opt.MapFrom(origen => origen.IdRolNavigation.Nombre)//origen:Usuario
-                )
+                opt => opt.MapFrom(origen => origen.IdRolNavigation !=null ? origen.IdRolNavigation.Nombre : null))//origen:Usuario
+                
                 .ForMember(destino =>
                 destino.EsActivo,
                 opt => opt.MapFrom(origen => origen.EsActivo == true ? 1 : 0)
@@ -31,7 +31,7 @@ namespace Registro.Utility
             CreateMap<Usuario, SesionDTO>()
                 .ForMember(destino =>
                 destino.RolDescripcion,
-                opt => opt.MapFrom(origen => origen.IdRolNavigation.Nombre)
+                opt => opt.MapFrom(origen => origen.IdRolNavigation !=null ? origen.IdRolNavigation.Nombre : null)
                 );
 
             CreateMap<UsuarioDTO, Usuario>()

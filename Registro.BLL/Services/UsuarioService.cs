@@ -24,31 +24,31 @@ namespace Registro.BLL.Services
         {
             try
             {
-                var usuarios = await _usuarioRepository.Consultar();
-                var listaUsuario = usuarios.Include(rol => rol.IdRolNavigation).ToListAsync();
-                return _mapper.Map<List<UsuarioDTO>>(listaUsuario);
+                var query = await _usuarioRepository.Consultar();
+
+                var usuarios = await query
+                    .Include(u => u.IdRolNavigation) 
+                    .ToListAsync(); 
+
+                return _mapper.Map<List<UsuarioDTO>>(usuarios); 
             }
             catch (Exception ex)
             {
                 throw new Exception("Error al obtener la lista de usuarios", ex);
             }
-            
         }
 
         public async Task<SesionDTO> ValidarCredenciales(string correo, string clave)
         {
             try
             {
-                var usuario = await _usuarioRepository.Consultar(u => u.Correo == correo
-                && u.Clave == clave
-                );
+                var query = await _usuarioRepository.Consultar(u => u.Correo == correo && u.Clave == clave);
 
-                //if (usuario.FirstOrDefaultAsync() == null)
-                //    throw new TaskCanceledException("El Usuario no existe");
+                var usuario = await query
+                    .Include(u => u.IdRolNavigation)
+                    .FirstOrDefaultAsync();
 
-                Usuario returnUsuario = usuario.Include(rol => rol.IdRolNavigation).First();
-
-                return _mapper.Map<SesionDTO>(returnUsuario);
+                return _mapper.Map<SesionDTO>(usuario);
             }
             catch (Exception ex)
             {
@@ -95,9 +95,7 @@ namespace Registro.BLL.Services
 
                 var usuarioConRol = await _usuarioRepository
                     .Consultar(u => u.IdUsuario == usuarioCreado.IdUsuario);
-                    //.Include(u => u.IdRolNavigation)
-                    //.FirstOrDefaultAsync();
-
+                  
                 usuarioCreado = usuarioConRol.Include(rol => rol.IdRolNavigation).First();
 
                 return _mapper.Map<UsuarioDTO>(usuarioCreado);

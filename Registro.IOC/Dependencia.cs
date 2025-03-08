@@ -34,7 +34,8 @@ namespace Registro.IOC
             services.AddScoped<IMenuService, MenuService>();
             services.AddScoped<IPeliculaService, PeliculaService>();
             services.AddScoped<IComentarioService, ComentarioService>();
-            
+            services.AddScoped<IJwtService, JwtService>();
+
         }
     }
 }

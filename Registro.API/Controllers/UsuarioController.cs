@@ -2,6 +2,7 @@
 using Registro.API.Utilities;
 using Registro.BLL.Services.ServicesContracts;
 using Registro.DTO;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Registro.API.Controllers
 {
@@ -10,12 +11,15 @@ namespace Registro.API.Controllers
     public class UsuarioController : ControllerBase
     {
         private readonly IUsuarioService _usuarioService;
+        private readonly IJwtService _jwtService;
 
-        public UsuarioController(IUsuarioService usuarioService)
+        public UsuarioController(IUsuarioService usuarioService, IJwtService jwtService)
         {
             _usuarioService = usuarioService;
+            _jwtService = jwtService;
         }
 
+        [Authorize(Roles = "Administrador, Supervisor")]
         [HttpGet("Lista")]
         public async Task<ActionResult<HttpResponseWrapper<List<UsuarioDTO>>>> Lista()
         {
@@ -42,15 +46,67 @@ namespace Registro.API.Controllers
 
             try
             {
+                var usuario = await _usuarioService.ValidarCredenciales(login.Correo, login.Clave);
+
+                if (usuario == null)
+                {
+                    response.status = false;
+                    response.HttpResponseMessage = "Credenciales inválidas";
+                    return Unauthorized(response);
+                }
+
+                var token = _jwtService.GenerarToken(usuario);
+
                 response.status = true;
-                response.value = await _usuarioService.ValidarCredenciales(login.Correo, login.Clave);
+                response.value = new SesionDTO
+                {
+                    IdUsuario = usuario.IdUsuario,
+                    NombreCompleto = usuario.NombreCompleto,
+                    Correo = usuario.Correo,
+                    RolDescripcion = usuario.RolDescripcion,
+                    Token = token
+                };
+
                 return Ok(response);
             }
             catch (Exception ex)
             {
                 response.status = false;
                 response.HttpResponseMessage = ex.Message;
-                return Unauthorized(response);
+                return BadRequest(response);
+            }
+        }
+
+
+        /*Este endpoint es el que se encarga de registrar un usuario
+         * este usuario se registra con el rol de cliente por defecto, el cual tendra acceso a el catalogo de peliculas
+         * y podrá comentar y calificarlas cuando inicie sesión.
+         * */
+        [HttpPost("Registrar")]
+        public async Task<ActionResult<HttpResponseWrapper<UsuarioDTO>>> Registrar([FromBody] RegistroUsuariosDTO registro)
+        {
+            var response = new HttpResponseWrapper<UsuarioDTO>();
+
+            try
+            {
+                // Asignar el rol de "Cliente" por defecto
+                var usuario = new UsuarioDTO
+                {
+                    NombreCompleto = registro.NombreCompleto,
+                    Correo = registro.Correo,
+                    Clave = registro.Clave,
+                    IdRol = 4 
+                };
+
+                response.status = true;
+                response.value = await _usuarioService.Crear(usuario);
+                return CreatedAtAction(nameof(Registrar), new { id = response.value.IdUsuario }, response);
+            }
+            catch (Exception ex)
+            {
+                response.status = false;
+                response.HttpResponseMessage = ex.Message;
+                return BadRequest(response);
             }
         }
 
