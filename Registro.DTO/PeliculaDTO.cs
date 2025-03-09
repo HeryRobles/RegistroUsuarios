@@ -15,5 +15,7 @@ namespace Registro.DTO
         public string ImagenUrl { get; set; }
         public string TrailerUrl { get; set; }
         public double Calificacion { get; set; } = 0.0;
+
+        public virtual ICollection<ComentarioDTO> Comentarios { get; set; } = new List<ComentarioDTO>();
     }
 }

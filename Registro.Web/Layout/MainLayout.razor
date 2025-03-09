@@ -1,0 +1,43 @@
+﻿@inherits LayoutComponentBase
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager Navigation
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <main>
+        <div class="top-row px-4">
+            @if (usuarioAutenticado)
+            {
+                <button class="nav-link btn btn-link" @onclick="CerrarSesion">Cerrar sesión</button>
+            }
+            else
+            {
+                <a href="/registro" class="nav-link">Registrate</a>
+                <a href="/login" class="nav-link">Iniciar Sesion</a>
+            }
+            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+        </div>
+
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+
+@code {
+    private bool usuarioAutenticado;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        usuarioAutenticado = authState.User.Identity.IsAuthenticated;
+    }
+
+    private void CerrarSesion()
+    {
+        Navigation.NavigateTo("/logout");
+    }
+}

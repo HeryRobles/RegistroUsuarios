@@ -101,3 +101,15 @@ a, .btn-link {
 code {
     color: #c02d76;
 }
+
+
+.top-row a.nav-link {
+    margin-right: 15px; 
+    color: #007bff; 
+    text-decoration: none;
+}
+
+    .top-row a.nav-link:hover {
+        text-decoration: underline;
+    }
+

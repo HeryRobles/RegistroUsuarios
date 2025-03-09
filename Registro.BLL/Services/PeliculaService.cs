@@ -10,14 +10,16 @@ namespace Registro.BLL.Services
     public class PeliculaService : IPeliculaService
     {
         private readonly IGenericRepository<Pelicula> _peliculaRepository;
+        private readonly IGenericRepository<Comentario> _comentarioRepository;
         private readonly IMapper _mapper;
 
-        public PeliculaService(IGenericRepository<Pelicula> peliculaRepository, IMapper mapper)
+        public PeliculaService(IGenericRepository<Pelicula> peliculaRepository, IGenericRepository<Comentario> comentarioRepository, IMapper mapper)
         {
             _peliculaRepository = peliculaRepository;
+            _comentarioRepository = comentarioRepository;
             _mapper = mapper;
         }
-         
+
         public async Task<List<PeliculaDTO>> Lista()
         {
             try
@@ -95,6 +97,51 @@ namespace Registro.BLL.Services
 
             return respuesta;
         }
-       
+
+        public async Task<PeliculaDTO> Calificar(int id, double calificacion)
+        {
+            try
+            {
+                var peliculaEncontrada = await _peliculaRepository.Obtener(p => p.IdPelicula == id);
+                if(peliculaEncontrada == null)
+                    throw new TaskCanceledException("La pelicula no existe");
+
+                peliculaEncontrada.Calificacion = calificacion;
+
+                await _peliculaRepository.Editar(peliculaEncontrada);
+
+                return _mapper.Map<PeliculaDTO>(peliculaEncontrada);
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public async Task<PeliculaDTO> Comentar(int id, ComentarioDTO comentarioDTO)
+        {
+            try
+            {
+                var peliculaEncontrada = await _peliculaRepository.Obtener(p => p.IdPelicula == id);
+
+                if (peliculaEncontrada == null)
+                    throw new TaskCanceledException("La película no existe");
+
+                var comentario = _mapper.Map<Comentario>(comentarioDTO);
+                comentario.IdPelicula = id;
+
+                var comentarioCreado = await _comentarioRepository.Crear(comentario);
+
+                if (comentarioCreado.IdComentario == 0)
+                    throw new TaskCanceledException("No se pudo agregar el comentario");
+
+                return _mapper.Map<PeliculaDTO>(peliculaEncontrada);
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
     }
 }

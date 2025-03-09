@@ -10,7 +10,7 @@ namespace Registro.DTO
     {
         public int IdComentario { get; set; }
         public int IdPelicula { get; set; }
-        public int NombreUsuario { get; set; }
+        public int IdUsuario { get; set; }
         public string Texto { get; set; } = string.Empty;
         public double Calificacion { get; set; }
         public DateTime FechaComentario { get; set; } = DateTime.Now;

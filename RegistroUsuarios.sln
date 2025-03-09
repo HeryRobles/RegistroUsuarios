@@ -17,7 +17,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Registro.Utility", "Registr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Registro.DTO", "Registro.DTO\Registro.DTO.csproj", "{0B7C1865-E20E-49FA-85F8-8532042EDF5A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Registro.Client", "Registro.Client\Registro.Client.csproj", "{B7AF8C5C-E253-4D22-A6ED-D6655CF199E0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Registro.Web", "Registro.Web\Registro.Web.csproj", "{CCD69AEE-BFBE-4C86-8E5A-B60D2DE921FB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -53,10 +53,10 @@ Global
 		{0B7C1865-E20E-49FA-85F8-8532042EDF5A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0B7C1865-E20E-49FA-85F8-8532042EDF5A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0B7C1865-E20E-49FA-85F8-8532042EDF5A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B7AF8C5C-E253-4D22-A6ED-D6655CF199E0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B7AF8C5C-E253-4D22-A6ED-D6655CF199E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B7AF8C5C-E253-4D22-A6ED-D6655CF199E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B7AF8C5C-E253-4D22-A6ED-D6655CF199E0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CCD69AEE-BFBE-4C86-8E5A-B60D2DE921FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CCD69AEE-BFBE-4C86-8E5A-B60D2DE921FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CCD69AEE-BFBE-4C86-8E5A-B60D2DE921FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CCD69AEE-BFBE-4C86-8E5A-B60D2DE921FB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

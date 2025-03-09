@@ -1,0 +1,118 @@
+﻿@page "/Peliculas"
+@using Registro.Web.Services
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthStateProvider
+
+<h3>Catálogo de Películas</h3>
+
+@if (peliculas == null)
+{
+    <p>Cargando películas...</p>
+}
+else
+{
+    <div class="peliculas-container">
+        @foreach (var pelicula in peliculas)
+        {
+            <div class="pelicula-card">
+                <img src="@pelicula.ImagenUrl" alt="@pelicula.Titulo" class="pelicula-imagen" />
+                <h4>@pelicula.Titulo</h4>
+                <p>@pelicula.Sinopsis</p>
+                <p>Calificación: @pelicula.Calificacion</p>
+
+                <!-- Botones para usuarios autenticados -->
+                @if (usuarioAutenticado)
+                {
+                    <!-- Botones para el rol "Cliente" -->
+                    @if (usuarioRol == "Cliente")
+                    {
+                        <button @onclick="() => MostrarFormularioComentario(pelicula.IdPelicula)">Comentar</button>
+                        <button @onclick="() => CalificarPelicula(pelicula.IdPelicula)">Calificar</button>
+                    }
+
+                    <!-- Botones para los roles "Supervisor", "Empleado" y "Administrador" -->
+                    @if (usuarioRol == "Supervisor" || usuarioRol == "Empleado" || usuarioRol == "Administrador")
+                    {
+                        <button @onclick="() => EditarPelicula(pelicula.IdPelicula)">Editar</button>
+                    }
+
+                    <!-- Botones exclusivos para el rol "Administrador" -->
+                    @if (usuarioRol == "Administrador")
+                    {
+                        <button @onclick="() => EliminarPelicula(pelicula.IdPelicula)">Eliminar</button>
+                    }
+                }
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private List<PeliculaDTO> peliculas;
+    private bool usuarioAutenticado;
+    private string usuarioRol;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            usuarioAutenticado = authState.User.Identity.IsAuthenticated;
+            usuarioRol = authState.User.Claims.FirstOrDefault(c => c.Type == "role")?.Value;
+
+            peliculas = await Http.GetFromJsonAsync<List<PeliculaDTO>>("api/Pelicula");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al cargar las películas: {ex.Message}");
+        }
+    }
+
+    private void MostrarFormularioComentario(int idPelicula)
+    {
+        Navigation.NavigateTo($"/comentar/{idPelicula}");
+    }
+
+    private async Task CalificarPelicula(int idPelicula)
+    {
+        try
+        {
+            var calificacion = 5.0; 
+            var response = await Http.PostAsJsonAsync($"api/Pelicula/{idPelicula}/calificar", calificacion);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var peliculaActualizada = await response.Content.ReadFromJsonAsync<PeliculaDTO>();
+                var peliculaIndex = peliculas.FindIndex(p => p.IdPelicula == idPelicula);
+                peliculas[peliculaIndex] = peliculaActualizada;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al calificar la película: {ex.Message}");
+        }
+    }
+
+    private void EditarPelicula(int idPelicula)
+    {
+        Navigation.NavigateTo($"/editar-pelicula/{idPelicula}");
+    }
+
+    private async Task EliminarPelicula(int idPelicula)
+    {
+        try
+        {
+            var response = await Http.DeleteAsync($"api/Pelicula/{idPelicula}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                peliculas.RemoveAll(p => p.IdPelicula == idPelicula);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al eliminar la película: {ex.Message}");
+        }
+    }
+}

@@ -14,5 +14,7 @@ namespace Registro.BLL.Services.ServicesContracts
         Task<PeliculaDTO> Crear(PeliculaDTO modelo);
         Task<bool> Editar(PeliculaDTO modelo);
         Task<bool> Eliminar(int id);
+        Task<PeliculaDTO> Calificar(int id, double calificacion);
+        Task<PeliculaDTO> Comentar(int id, ComentarioDTO comentario);
     }
 }
