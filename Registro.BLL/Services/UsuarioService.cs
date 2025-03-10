@@ -9,7 +9,6 @@ using System.ComponentModel.Design;
 namespace Registro.BLL.Services
 {
 
-    //Repositorio generico para la entidad Usuario
     public class UsuarioService : IUsuarioService
     {
         private readonly IGenericRepository<Usuario> _usuarioRepository;

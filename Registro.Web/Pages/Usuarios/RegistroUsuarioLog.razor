@@ -4,39 +4,39 @@
 
 <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
 
-<h3>Registro de Usuario</h3>
+    <h3>Registro de Usuario</h3>
 
-<EditForm Model="@registro" OnValidSubmit="RegistrarUsuario" style="width: 100%; max-width: 400px; text-align: center;">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
+    <EditForm Model="@registro" OnValidSubmit="RegistrarUsuario" style="width: 100%; max-width: 400px; text-align: center;">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
 
-    <div class="form-group" style="margin-bottom: 1rem;">
-        <label>Nombre Completo</label>
-        <InputText @bind-Value="registro.NombreCompleto" class="form-control" />
-        <ValidationMessage For="@(() => registro.NombreCompleto)" />
-    </div>
+        <div class="form-group" style="margin-bottom: 1rem;">
+            <label>Nombre Completo</label>
+            <InputText @bind-Value="registro.NombreCompleto" class="form-control" />
+            <ValidationMessage For="@(() => registro.NombreCompleto)" />
+        </div>
 
-    <div class="form-group" style="margin-bottom: 1rem;">
-        <label>Correo Electrónico</label>
-        <InputText @bind-Value="registro.Correo" class="form-control" />
-        <ValidationMessage For="@(() => registro.Correo)" />
-    </div>
+        <div class="form-group" style="margin-bottom: 1rem;">
+            <label>Correo Electrónico</label>
+            <InputText @bind-Value="registro.Correo" class="form-control" />
+            <ValidationMessage For="@(() => registro.Correo)" />
+        </div>
 
-    <div class="form-group" style="margin-bottom: 1rem;">
-        <label>Contraseña</label>
-        <InputText type="password" @bind-Value="registro.Clave" class="form-control" />
-        <ValidationMessage For="@(() => registro.Clave)" />
-    </div>
+        <div class="form-group" style="margin-bottom: 1rem;">
+            <label>Contraseña</label>
+            <InputText type="password" @bind-Value="registro.Clave" class="form-control" />
+            <ValidationMessage For="@(() => registro.Clave)" />
+        </div>
 
-    <button type="submit" class="btn btn-primary" style="margin-top: 10px;">Registrar</button>
-</EditForm>
+        <button type="submit" class="btn btn-primary" style="margin-top: 10px;">Registrar</button>
+    </EditForm>
 
-@if (!string.IsNullOrEmpty(mensajeError))
-{
-    <div class="alert alert-danger">
-        @mensajeError
-    </div>
-}
+    @if (!string.IsNullOrEmpty(mensajeError))
+    {
+        <div class="alert alert-danger">
+            @mensajeError
+        </div>
+    }
 
 </div>
 
@@ -46,15 +46,15 @@
 
     private async Task RegistrarUsuario()
     {
-        mensajeError = null; 
+        mensajeError = null;
 
         try
         {
-            var response = await repository.Post<RegistroUsuariosDTO, UsuarioDTO>("Usuario/Registrar", registro);
+            var response = await repository.Post<RegistroUsuariosDTO, UsuarioDTO>("api/Usuario/registroCliente", registro);
 
             if (!response.Error)
             {
-                Navigation.NavigateTo("/Peliculas");
+                Navigation.NavigateTo("/login");
             }
             else
             {

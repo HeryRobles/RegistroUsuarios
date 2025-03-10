@@ -2,7 +2,7 @@
 using Microsoft.JSInterop;
 using Registro.DTO;
 using System.Net.Http.Json;
-using static System.Net.WebRequestMethods;
+using System.Threading.Tasks;
 
 namespace Registro.Web.Services
 {
@@ -21,28 +21,56 @@ namespace Registro.Web.Services
 
         public async Task<bool> Login(LoginDTO loginDto)
         {
-            var response = await _http.PostAsJsonAsync("api/auth/login", loginDto);
-
-            if (response.IsSuccessStatusCode)
+            try
             {
-                var sesionDto = await response.Content.ReadFromJsonAsync<SesionDTO>();
+                var response = await _http.PostAsJsonAsync("api/Usuario/login", loginDto);
 
-                await _jsRuntime.InvokeVoidAsync("localStorage.setItem", "authToken", sesionDto.Token);
+                if (response.IsSuccessStatusCode)
+                {
+                    var sesionDto = await response.Content.ReadFromJsonAsync<SesionDTO>();
 
-                ((AuthStateProvider)_authStateProvider).NotifyAuthenticationStateChanged();
+                    await _jsRuntime.InvokeVoidAsync("localStorage.setItem", "authToken", sesionDto.Token);
 
-                return true;
+                    ((AuthStateProvider)_authStateProvider).NotifyAuthenticationStateChanged();
+
+                    return true;
+                }
+
+                return false;
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al iniciar sesión: {ex.Message}");
+                return false;
+            }
+        }
 
-            return false;
+        public async Task AddTokenToHttpClient()
+        {
+            var token = await _jsRuntime.InvokeAsync<string>("localStorage.getItem", "authToken");
+            if (!string.IsNullOrEmpty(token))
+            {
+                _http.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            }
         }
 
         public async Task Logout()
         {
-            await _jsRuntime.InvokeVoidAsync("localStorage.removeItem", "authToken");
+            try
+            {
+                await _jsRuntime.InvokeVoidAsync("localStorage.removeItem", "authToken");
 
-            ((AuthStateProvider)_authStateProvider).NotifyAuthenticationStateChanged();
+                ((AuthStateProvider)_authStateProvider).NotifyAuthenticationStateChanged();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al cerrar sesión: {ex.Message}");
+            }
         }
 
+        public async Task<string> GetToken()
+        {
+            return await _jsRuntime.InvokeAsync<string>("localStorage.getItem", "authToken");
+        }
     }
 }

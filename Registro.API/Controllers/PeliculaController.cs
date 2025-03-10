@@ -18,7 +18,7 @@ namespace Registro.API.Controllers
             _peliculaService = peliculaService;
         }
 
-        [HttpGet("Lista")]
+        [HttpGet("lista")]
         public async Task<ActionResult<List<PeliculaDTO>>> Lista()
         {
             var peliculas = await _peliculaService.Lista();
@@ -30,53 +30,87 @@ namespace Registro.API.Controllers
         {
             var pelicula = await _peliculaService.Obtener(id);
             if (pelicula == null)
-                return NotFound();
+                return NotFound(new { message = "Película no encontrada." });
 
             return Ok(pelicula);
         }
 
-        // Crear una nueva película (solo Administrador)
         [Authorize(Roles = "Administrador")]
-        [HttpPost]
+        [HttpPost("crear")]
         public async Task<ActionResult<PeliculaDTO>> Crear([FromBody] PeliculaDTO peliculaDTO)
         {
-            var peliculaCreada = await _peliculaService.Crear(peliculaDTO);
-            return CreatedAtAction(nameof(Obtener), new { id = peliculaCreada.IdPelicula }, peliculaCreada);
+            try
+            {
+                var peliculaCreada = await _peliculaService.Crear(peliculaDTO);
+                return CreatedAtAction(nameof(Obtener), new { id = peliculaCreada.IdPelicula }, peliculaCreada);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         [Authorize(Roles = "Supervisor, Empleado, Administrador")]
-        [HttpPut("{id}")]
+        [HttpPut("editar/{id}")]
         public async Task<ActionResult<bool>> Editar(int id, [FromBody] PeliculaDTO peliculaDTO)
         {
             if (id != peliculaDTO.IdPelicula)
-                return BadRequest();
+                return BadRequest(new { message = "El ID de la película no coincide." });
 
-            var resultado = await _peliculaService.Editar(peliculaDTO);
-            return Ok(resultado);
+            try
+            {
+                var resultado = await _peliculaService.Editar(peliculaDTO);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         [Authorize(Roles = "Administrador")]
-        [HttpDelete("{id}")]
+        [HttpDelete("eliminar/{id}")]
         public async Task<ActionResult<bool>> Eliminar(int id)
         {
-            var resultado = await _peliculaService.Eliminar(id);
-            return Ok(resultado);
+            try
+            {
+                var resultado = await _peliculaService.Eliminar(id);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         [Authorize(Roles = "Cliente")]
         [HttpPost("{id}/calificar")]
-        public async Task<ActionResult<PeliculaDTO>> Calificar(int id, [FromQuery] double calificacion)
+        public async Task<ActionResult<PeliculaDTO>> Calificar(int id, [FromBody] double calificacion)
         {
-            var peliculaCalificada = await _peliculaService.Calificar(id, calificacion);
-            return Ok(peliculaCalificada);
+            try
+            {
+                var peliculaCalificada = await _peliculaService.Calificar(id, calificacion);
+                return Ok(peliculaCalificada);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         [Authorize(Roles = "Cliente")]
         [HttpPost("{id}/comentar")]
         public async Task<ActionResult<PeliculaDTO>> Comentar(int id, [FromBody] ComentarioDTO comentarioDTO)
         {
-            var peliculaComentada = await _peliculaService.Comentar(id, comentarioDTO);
-            return Ok(peliculaComentada);
+            try
+            {
+                var peliculaComentada = await _peliculaService.Comentar(id, comentarioDTO);
+                return Ok(peliculaComentada);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
     }
 }

@@ -48,10 +48,28 @@ else
     </div>
 }
 
+<!-- Formulario para crear una nueva película -->
+@if (mostrarFormularioCrear)
+{
+    <div class="formulario-crear">
+        <h3>Crear Nueva Película</h3>
+        <input @bind="nuevaPelicula.Titulo" placeholder="Título" />
+        <input @bind="nuevaPelicula.Sinopsis" placeholder="Sinopsis" />
+        <input @bind="nuevaPelicula.ImagenUrl" placeholder="URL de la imagen" />
+        <input @bind="nuevaPelicula.Calificacion" placeholder="Calificación" />
+        <button @onclick="CrearPelicula">Crear</button>
+        <button @onclick="CancelarCreacion">Cancelar</button>
+    </div>
+}
+
+<button @onclick="MostrarFormularioCrear">Agregar Película</button>
+
 @code {
     private List<PeliculaDTO> peliculas;
     private bool usuarioAutenticado;
     private string usuarioRol;
+    private bool mostrarFormularioCrear = false;
+    private PeliculaDTO nuevaPelicula = new PeliculaDTO();
 
     protected override async Task OnInitializedAsync()
     {
@@ -61,7 +79,7 @@ else
             usuarioAutenticado = authState.User.Identity.IsAuthenticated;
             usuarioRol = authState.User.Claims.FirstOrDefault(c => c.Type == "role")?.Value;
 
-            peliculas = await Http.GetFromJsonAsync<List<PeliculaDTO>>("api/Pelicula");
+            peliculas = await Http.GetFromJsonAsync<List<PeliculaDTO>>("api/Pelicula/lista");
         }
         catch (Exception ex)
         {
@@ -78,8 +96,8 @@ else
     {
         try
         {
-            var calificacion = 5.0; 
-            var response = await Http.PostAsJsonAsync($"api/Pelicula/{idPelicula}/calificar", calificacion);
+            var calificacion = 5.0;
+            var response = await Http.PostAsJsonAsync($"api/Pelicula/{idPelicula}/calificacion", calificacion);
 
             if (response.IsSuccessStatusCode)
             {
@@ -114,5 +132,36 @@ else
         {
             Console.WriteLine($"Error al eliminar la película: {ex.Message}");
         }
+    }
+
+    private void MostrarFormularioCrear()
+    {
+        mostrarFormularioCrear = true;
+    }
+
+    private async Task CrearPelicula()
+    {
+        try
+        {
+            var response = await Http.PostAsJsonAsync("api/Pelicula/crear", nuevaPelicula);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var peliculaCreada = await response.Content.ReadFromJsonAsync<PeliculaDTO>();
+                peliculas.Add(peliculaCreada);
+                mostrarFormularioCrear = false;
+                nuevaPelicula = new PeliculaDTO(); 
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al crear la película: {ex.Message}");
+        }
+    }
+
+    private void CancelarCreacion()
+    {
+        mostrarFormularioCrear = false;
+        nuevaPelicula = new PeliculaDTO(); 
     }
 }

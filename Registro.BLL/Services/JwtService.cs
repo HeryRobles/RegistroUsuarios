@@ -17,24 +17,30 @@ namespace Registro.BLL.Services
             _configuration = configuration;
         }
 
-       
         public string GenerarToken(SesionDTO usuario)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
+
             var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]);
+
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
                     new Claim(ClaimTypes.NameIdentifier, usuario.IdUsuario.ToString()),
                     new Claim(ClaimTypes.Email, usuario.Correo),
-                    new Claim(ClaimTypes.Role, usuario.RolDescripcion)
+                    new Claim(ClaimTypes.Role, usuario.RolDescripcion) 
                 }),
+
                 Expires = DateTime.UtcNow.AddMonths(1),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+
+                SigningCredentials = new SigningCredentials(
+                    new SymmetricSecurityKey(key),
+                    SecurityAlgorithms.HmacSha256Signature)
             };
 
             var token = tokenHandler.CreateToken(tokenDescriptor);
+
             return tokenHandler.WriteToken(token);
         }
     }

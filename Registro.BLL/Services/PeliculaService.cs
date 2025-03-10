@@ -1,9 +1,12 @@
 ﻿using AutoMapper;
-using Microsoft.EntityFrameworkCore;
 using Registro.BLL.Services.ServicesContracts;
 using Registro.DAL.Repository.IRepository;
 using Registro.DTO;
 using Registro.Model.Entities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Registro.BLL.Services
 {
@@ -34,22 +37,35 @@ namespace Registro.BLL.Services
             }
         }
 
-        public Task<PeliculaDTO> Obtener(int id)
+        public async Task<PeliculaDTO> Obtener(int id)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var pelicula = await _peliculaRepository.Obtener(p => p.IdPelicula == id);
+                if (pelicula == null)
+                    throw new InvalidOperationException("La película no existe.");
+
+                return _mapper.Map<PeliculaDTO>(pelicula);
+            }
+            catch
+            {
+                throw;
+            }
         }
 
         public async Task<PeliculaDTO> Crear(PeliculaDTO modelo)
         {
             try
             {
+                if (modelo == null)
+                    throw new ArgumentNullException(nameof(modelo), "El modelo no puede ser nulo.");
+
                 var peliculaCreada = await _peliculaRepository.Crear(_mapper.Map<Pelicula>(modelo));
 
-                if(peliculaCreada.IdPelicula == 0)
-                    throw new TaskCanceledException("No se pudo crear la pelicula");
+                if (peliculaCreada.IdPelicula == 0)
+                    throw new InvalidOperationException("No se pudo crear la película.");
 
                 return _mapper.Map<PeliculaDTO>(peliculaCreada);
-
             }
             catch
             {
@@ -61,12 +77,14 @@ namespace Registro.BLL.Services
         {
             try
             {
-                var peliculaModelo = _mapper.Map<Pelicula>(modelo);
-                var peliculaEncontrada = await _peliculaRepository.Obtener(p => 
-                p.IdPelicula == peliculaModelo.IdPelicula);
+                if (modelo == null)
+                    throw new ArgumentNullException(nameof(modelo), "El modelo no puede ser nulo.");
 
-                if(peliculaEncontrada.IdPelicula == 0)
-                    throw new TaskCanceledException("La pelicula no existe");
+                var peliculaModelo = _mapper.Map<Pelicula>(modelo);
+                var peliculaEncontrada = await _peliculaRepository.Obtener(p => p.IdPelicula == peliculaModelo.IdPelicula);
+
+                if (peliculaEncontrada == null)
+                    throw new InvalidOperationException("La película no existe.");
 
                 peliculaEncontrada.Titulo = peliculaModelo.Titulo;
                 peliculaEncontrada.Sinopsis = peliculaModelo.Sinopsis;
@@ -74,8 +92,8 @@ namespace Registro.BLL.Services
 
                 bool respuesta = await _peliculaRepository.Editar(peliculaEncontrada);
 
-                if(respuesta)
-                    throw new TaskCanceledException("No se pudo editar la pelicula");
+                if (!respuesta)
+                    throw new InvalidOperationException("No se pudo editar la película.");
 
                 return respuesta;
             }
@@ -84,27 +102,39 @@ namespace Registro.BLL.Services
                 throw;
             }
         }
+
         public async Task<bool> Eliminar(int id)
         {
-            var peliculaEncontrada = await _peliculaRepository.Obtener(p => p.IdPelicula == id);
+            try
+            {
+                var peliculaEncontrada = await _peliculaRepository.Obtener(p => p.IdPelicula == id);
 
-            if(peliculaEncontrada == null)
-                throw new TaskCanceledException("La pelicula no existe");
-            bool respuesta = await _peliculaRepository.Eliminar(peliculaEncontrada);
+                if (peliculaEncontrada == null)
+                    throw new InvalidOperationException("La película no existe.");
 
-            if (respuesta)
-                throw new TaskCanceledException("No se pudo eliminar");
+                bool respuesta = await _peliculaRepository.Eliminar(peliculaEncontrada);
 
-            return respuesta;
+                if (!respuesta)
+                    throw new InvalidOperationException("No se pudo eliminar la película.");
+
+                return respuesta;
+            }
+            catch
+            {
+                throw;
+            }
         }
 
         public async Task<PeliculaDTO> Calificar(int id, double calificacion)
         {
             try
             {
+                if (calificacion < 0 || calificacion > 10)
+                    throw new ArgumentOutOfRangeException(nameof(calificacion), "La calificación debe estar entre 0 y 10.");
+
                 var peliculaEncontrada = await _peliculaRepository.Obtener(p => p.IdPelicula == id);
-                if(peliculaEncontrada == null)
-                    throw new TaskCanceledException("La pelicula no existe");
+                if (peliculaEncontrada == null)
+                    throw new InvalidOperationException("La película no existe.");
 
                 peliculaEncontrada.Calificacion = calificacion;
 
@@ -122,10 +152,13 @@ namespace Registro.BLL.Services
         {
             try
             {
+                if (comentarioDTO == null)
+                    throw new ArgumentNullException(nameof(comentarioDTO), "El comentario no puede ser nulo.");
+
                 var peliculaEncontrada = await _peliculaRepository.Obtener(p => p.IdPelicula == id);
 
                 if (peliculaEncontrada == null)
-                    throw new TaskCanceledException("La película no existe");
+                    throw new InvalidOperationException("La película no existe.");
 
                 var comentario = _mapper.Map<Comentario>(comentarioDTO);
                 comentario.IdPelicula = id;
@@ -133,7 +166,7 @@ namespace Registro.BLL.Services
                 var comentarioCreado = await _comentarioRepository.Crear(comentario);
 
                 if (comentarioCreado.IdComentario == 0)
-                    throw new TaskCanceledException("No se pudo agregar el comentario");
+                    throw new InvalidOperationException("No se pudo agregar el comentario.");
 
                 return _mapper.Map<PeliculaDTO>(peliculaEncontrada);
             }
@@ -142,6 +175,5 @@ namespace Registro.BLL.Services
                 throw;
             }
         }
-
     }
 }
