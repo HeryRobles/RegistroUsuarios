@@ -21,13 +21,13 @@ namespace Registro.Web.Services
 
         public async Task<bool> Login(LoginDTO loginDto)
         {
-            try
+            try 
             {
-                var response = await _http.PostAsJsonAsync("api/Usuario/login", loginDto);
+                var response = await _http.PostAsJsonAsync("api/Login/login", loginDto);
 
                 if (response.IsSuccessStatusCode)
                 {
-                    var sesionDto = await response.Content.ReadFromJsonAsync<SesionDTO>();
+                    var sesionDto = await response.Content.ReadFromJsonAsync<RegistroUsuarioDTO>();
 
                     await _jsRuntime.InvokeVoidAsync("localStorage.setItem", "authToken", sesionDto.Token);
 

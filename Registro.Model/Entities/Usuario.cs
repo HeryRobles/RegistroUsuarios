@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Registro.Model.Entities
+﻿namespace Registro.Model.Entities
 {
     public class Usuario
     {
@@ -17,6 +11,8 @@ namespace Registro.Model.Entities
         public int? IdRol { get; set; }
 
         public string? Clave { get; set; }
+
+        public string Telefono { get; set; }
 
         public bool? EsActivo { get; set; }
 

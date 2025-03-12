@@ -4,7 +4,7 @@ using Registro.BLL.Services.ServicesContracts;
 using Registro.DTO;
 using Microsoft.AspNetCore.Authorization;
 
-namespace Registro.API.Controllers
+namespace Registro.API.Controllers.Usuarios
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -19,7 +19,7 @@ namespace Registro.API.Controllers
             _jwtService = jwtService;
         }
 
-        [Authorize(Roles = "Administrador, Supervisor")]
+        //[Authorize(Roles = "Administrador")]
         [HttpGet("lista")]
         public async Task<ActionResult<List<UsuarioDTO>>> Lista()
         {
@@ -39,35 +39,17 @@ namespace Registro.API.Controllers
             }
         }
 
-        [HttpPost("login")]
-        public async Task<ActionResult<SesionDTO>> IniciarSesion([FromBody] LoginDTO login)
+        //[Authorize(Roles = "Administrador")]
+        [HttpPost("crear")]
+        public async Task<ActionResult<UsuarioDTO>> Crear([FromBody] UsuarioDTO usuario)
         {
-            var response = new HttpResponseWrapper<SesionDTO>();
+            var response = new HttpResponseWrapper<UsuarioDTO>();
 
             try
             {
-                var sesion = await _usuarioService.Login(login.Correo, login.Clave);
-
-                if (sesion == null)
-                {
-                    response.status = false;
-                    response.HttpResponseMessage = "Credenciales inválidas";
-                    return Unauthorized(response);
-                }
-
-                var token = _jwtService.GenerarToken(sesion);
-
                 response.status = true;
-                response.value = new SesionDTO
-                {
-                    IdUsuario = sesion.IdUsuario,
-                    NombreCompleto = sesion.NombreCompleto,
-                    Correo = sesion.Correo,
-                    RolDescripcion = sesion.RolDescripcion,
-                    Token = token
-                };
-
-                return Ok(response);
+                response.value = await _usuarioService.Crear(usuario);
+                return CreatedAtAction(nameof(Crear), new { id = response.value.IdUsuario }, response);
             }
             catch (Exception ex)
             {
@@ -76,61 +58,13 @@ namespace Registro.API.Controllers
                 return BadRequest(response);
             }
         }
-
 
         /*Este endpoint es el que se encarga de registrar un usuario
          * este usuario se registra con el rol de cliente por defecto, el cual tendra acceso a el catalogo de peliculas
          * y podrá comentar y calificarlas cuando inicie sesión.
          * */
 
-        [HttpPost("registroCliente")]
-        public async Task<ActionResult<UsuarioDTO>> Registrar([FromBody] RegistroUsuariosDTO registro)
-        {
-            var response = new HttpResponseWrapper<UsuarioDTO>();
-
-            try
-            {
-                var usuario = new UsuarioDTO
-                {
-                    NombreCompleto = registro.NombreCompleto,
-                    Correo = registro.Correo,
-                    Clave = registro.Clave,
-                    IdRol = 4 // Rol de cliente por defecto
-                };
-
-                response.status = true;
-                response.value = await _usuarioService.Registrar(usuario);
-                return CreatedAtAction(nameof(Registrar), new { id = response.value.IdUsuario }, response);
-            }
-            catch (Exception ex)
-            {
-                response.status = false;
-                response.HttpResponseMessage = ex.Message;
-                return BadRequest(response);
-            }
-        }
-
-        [Authorize(Roles = "Administrador")]
-        [HttpPost("activar")]
-        public async Task<ActionResult<UsuarioDTO>> ActivarUsuario([FromBody] UsuarioDTO usuario)
-        {
-            var response = new HttpResponseWrapper<UsuarioDTO>();
-
-            try
-            {
-                response.status = true;
-                response.value = await _usuarioService.DarDeAlta(usuario);
-                return CreatedAtAction(nameof(ActivarUsuario), new { id = response.value.IdUsuario }, response);
-            }
-            catch (Exception ex)
-            {
-                response.status = false;
-                response.HttpResponseMessage = ex.Message;
-                return BadRequest(response);
-            }
-        }
-
-        [Authorize]
+        //[Authorize]
         [HttpPut("editar/{id}")]
         public async Task<ActionResult<bool>> Editar(int id, [FromBody] UsuarioDTO usuario)
         {
@@ -159,7 +93,7 @@ namespace Registro.API.Controllers
             }
         }
 
-        [Authorize(Roles = "Administrador")]
+        //[Authorize(Roles = "Administrador")]
         [HttpPut("{id}/rol")]
         public async Task<ActionResult<bool>> AsignarRol(int id, [FromQuery] int nuevoRolId)
         {
@@ -187,7 +121,7 @@ namespace Registro.API.Controllers
             }
         }
 
-        [Authorize(Roles = "Administrador")]
+        //[Authorize(Roles = "Administrador")]
         [HttpDelete("editar/{id}")]
         public async Task<ActionResult<bool>> Eliminar(int id)
         {

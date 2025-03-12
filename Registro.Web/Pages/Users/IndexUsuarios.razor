@@ -1,0 +1,116 @@
+﻿@page "/listadousuarios"
+@inject IRepository repository
+@inject NavigationManager navigation
+@inject IJSRuntime JSRuntime
+
+<div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+    <h3 style="display: flex; align-items: center;">
+        Usuarios
+        <button class="btn btn-success" style="margin-left: 10px;" @onclick="CrearUsuario">Nuevo Usuario</button>
+    </h3>
+
+    @if (usuarios == null)
+    {
+        <p>Cargando usuarios...</p>
+    }
+    else if (!usuarios.Any())
+    {
+        <p>No hay usuarios registrados.</p>
+    }
+    else
+    {
+        <table class="table" style="width: 100%; max-width: 800px;">
+            <thead>
+                <tr>
+                    <th>Nombre Completo</th>
+                    <th>Email</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var usuario in usuarios)
+                {
+                    <tr>
+                        <td>@usuario.NombreCompleto</td>
+                        <td>@usuario.Correo</td>
+                        <td>
+                            <button class="btn btn-primary" @onclick="() => EditarUsuario(usuario.IdUsuario)">Editar</button>
+                            <button class="btn btn-danger" @onclick="() => EliminarUsuario(usuario.IdUsuario)">Eliminar</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+
+    @if (!string.IsNullOrEmpty(mensajeError))
+    {
+        <div class="alert alert-danger">@mensajeError</div>
+    }
+</div>
+
+@code {
+    private List<UsuarioDTO> usuarios = new();
+    private string mensajeError = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarUsuarios();
+    }
+
+    private async Task CargarUsuarios()
+    {
+        try
+        {
+            var response = await repository.Get<List<UsuarioDTO>>("api/Usuario/lista");
+
+            if (response != null && !response.Error && response.Response != null)
+            {
+                usuarios = response.Response;
+            }
+            else
+            {
+                mensajeError = "Error al cargar la lista de usuarios.";
+            }
+        }
+        catch (Exception)
+        {
+            mensajeError = "Ocurrió un error inesperado. Inténtalo de nuevo más tarde.";
+        }
+    }
+
+    private void CrearUsuario()
+    {
+        navigation.NavigateTo("/usuarios/crear");
+    }
+
+    private void EditarUsuario(int id)
+    {
+        navigation.NavigateTo($"/usuarios/editar/{id}");
+    }
+
+    private async Task EliminarUsuario(int id)
+    {
+        var confirmar = await JSRuntime.InvokeAsync<bool>("confirm", "¿Estás seguro de que deseas eliminar este usuario?");
+
+        if (confirmar)
+        {
+            try
+            {
+                var response = await repository.Delete($"api/Usuario/{id}");
+
+                if (response != null && !response.Error)
+                {
+                    await CargarUsuarios(); 
+                }
+                else
+                {
+                    mensajeError = "Error al eliminar el usuario.";
+                }
+            }
+            catch (Exception)
+            {
+                mensajeError = "Ocurrió un error inesperado. Inténtalo de nuevo más tarde.";
+            }
+        }
+    }
+}

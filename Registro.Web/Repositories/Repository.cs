@@ -17,7 +17,11 @@ namespace Registro.Web.Repositories
             PropertyNameCaseInsensitive = true,
         };
 
-
+        public async Task<HttpResponseWrapper<object>> GetAsync<T>(string url)
+        {
+            var responseHttp = await _httpClient.GetAsync(url);
+            return new HttpResponseWrapper<object>(null, !responseHttp.IsSuccessStatusCode, responseHttp);
+        }
 
         public async Task<HttpResponseWrapper<T>> Get<T>(string url)
         {
@@ -87,6 +91,8 @@ namespace Registro.Web.Repositories
             return new HttpResponseWrapper<TResponse>(default, !responseHttp.IsSuccessStatusCode, responseHttp);
 
         }
+
+       
     }
 
 }

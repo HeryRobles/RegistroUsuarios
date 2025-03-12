@@ -5,7 +5,7 @@ using Registro.DTO;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Registro.API.Controllers
+namespace Registro.API.Controllers.Peliculas
 {
     [Route("api/[controller]")]
     [ApiController]

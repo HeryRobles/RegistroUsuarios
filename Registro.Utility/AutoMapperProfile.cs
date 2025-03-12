@@ -28,7 +28,7 @@ namespace Registro.Utility
                 opt => opt.MapFrom(origen => origen.EsActivo == true ? 1 : 0)
                 );
 
-            CreateMap<Usuario, SesionDTO>()
+            CreateMap<Usuario, RegistroUsuarioDTO>()
                 .ForMember(destino =>
                 destino.RolDescripcion,
                 opt => opt.MapFrom(origen => origen.IdRolNavigation !=null ? origen.IdRolNavigation.Nombre : null)
@@ -43,7 +43,14 @@ namespace Registro.Utility
                 destino.EsActivo,
                 opt => opt.MapFrom(origen => origen.EsActivo == 1 ? true : false)
                 );
+
+            CreateMap<RegistroUsuarioDTO, Usuario>()
+                .ForMember(dest => dest.IdRolNavigation, opt => opt.Ignore())
+                .ForMember(dest => dest.EsActivo, opt => opt.Ignore())
+                .ForMember(dest => dest.FechaRegistro, opt => opt.Ignore());
             #endregion Usuario
+
+
 
             #region Pelicula
             CreateMap<Pelicula, PeliculaDTO>().ReverseMap();

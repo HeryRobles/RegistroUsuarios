@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Registro.BLL.Services.ServicesContracts;
-using Registro.DAL.Repository.IRepository;
+using Registro.BLL.Repository.IRepository;
 using Registro.DTO;
 using Registro.Model.Entities;
 using System.ComponentModel.Design;
@@ -43,60 +43,7 @@ namespace Registro.BLL.Services
             }
         }
 
-        /*Metodo para registro de nuevos usuarios, los mismos usuarios se registran en la página de registro
-         * y se les asigna el rol de Cliente por defecto
-         */
-        public async Task<UsuarioDTO> Registrar(UsuarioDTO modelo)
-        {
-            try
-            {
-                var usuarioModelo = _mapper.Map<Usuario>(modelo);
-                var usuarioCreado = await _usuarioRepository.Crear(usuarioModelo);
-
-
-                if (modelo.IdRol == 0)
-                {
-                    modelo.IdRol = 4;
-                }
-
-
-                var usuarioConRol = await _usuarioRepository
-                    .Consultar(u => u.IdUsuario == usuarioCreado.IdUsuario);
-
-                usuarioCreado = usuarioConRol.Include(rol => rol.IdRolNavigation).First();
-
-                return _mapper.Map<UsuarioDTO>(usuarioCreado);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Error al crear el usuario", ex);
-            }
-        }
-
-
-
-        public async Task<SesionDTO> Login (string correo, string clave)
-        {
-            try
-            {
-                var query = await _usuarioRepository.Consultar(u => u.Correo == correo && u.Clave == clave);
-
-                var usuario = await query
-                    .Include(u => u.IdRolNavigation)
-                    .FirstOrDefaultAsync();
-
-                return _mapper.Map<SesionDTO>(usuario);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception();
-            }
-        }
-
-        /*En este método, el Administrador podrá dar de alta a los usuarios con rol de empleado, supervisor y administrador
-        */
-
-        public async Task<UsuarioDTO> DarDeAlta(UsuarioDTO modelo)
+        public async Task<UsuarioDTO> Crear(UsuarioDTO modelo)
         {
             try
             {
@@ -235,7 +182,5 @@ namespace Registro.BLL.Services
                 throw new Exception("Error al eliminar el usuario", ex);
             }
         }
-
-        
     }
 }

@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using Registro.BLL.Services.ServicesContracts;
-using Registro.DAL.Repository.IRepository;
+using Registro.BLL.Repository.IRepository;
 using Registro.DTO;
 using Registro.Model.Entities;
 using System;

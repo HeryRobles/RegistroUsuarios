@@ -9,6 +9,6 @@ namespace Registro.BLL.Services.ServicesContracts
 {
     public interface IJwtService
     {
-        string GenerarToken(SesionDTO usuario);
+        string GenerarToken(UsuarioDTO modelo);
     }
 }

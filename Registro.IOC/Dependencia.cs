@@ -3,10 +3,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using Registro.DAL.DBContext;
 using Registro.Utility;
-using Registro.DAL.Repository.IRepository;
-using Registro.DAL.Repository;
 using Registro.BLL.Services.ServicesContracts;
 using Registro.BLL.Services;
+using Registro.BLL.Repository;
+using Registro.BLL.Repository.IRepository;
+
 
 
 namespace Registro.IOC
@@ -22,12 +23,16 @@ namespace Registro.IOC
                 options.UseSqlServer(configuration.GetConnectionString("cadenaSQL"));
             });
 
-            //DEPENDENCIAS DE LOS REPOSITORIOS DE LA CAPA DE DATOS
-            services.AddTransient(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+
+
+            
+            
 
             //DEPENDENCIAS DE LAS UTILERÍAS DE LA CAPA DE UTILIDADES PARA EL MAPPING
             services.AddAutoMapper(typeof(AutoMapperProfile));
 
+
+            //DEPENDENCIAS DE LOS REPOSITORIOS DE LA CAPA DE NEGOCIOS
             //Dependencias de los servicios
             services.AddScoped<IRolService, RolService>();
             services.AddScoped<IUsuarioService, UsuarioService>();
@@ -35,6 +40,10 @@ namespace Registro.IOC
             services.AddScoped<IPeliculaService, PeliculaService>();
             services.AddScoped<IComentarioService, ComentarioService>();
             services.AddScoped<IJwtService, JwtService>();
+            services.AddScoped<IAuthService, AuthService>();
+
+            //Repositorios Genericos
+            services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
         }
     }

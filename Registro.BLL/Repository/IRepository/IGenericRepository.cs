@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 
-namespace Registro.DAL.Repository.IRepository
+namespace Registro.BLL.Repository.IRepository
 {
     public interface IGenericRepository<TModel> where TModel : class
     {

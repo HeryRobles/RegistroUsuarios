@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Registro.DAL.Repository.IRepository;
+﻿using Microsoft.EntityFrameworkCore;
+using Registro.BLL.Repository.IRepository;
 using Registro.DAL.DBContext;
-using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
 
-namespace Registro.DAL.Repository
+namespace Registro.BLL.Repository
 {
     public class GenericRepository<TModelo> : IGenericRepository<TModelo> where TModelo : class
     {
@@ -80,7 +75,7 @@ namespace Registro.DAL.Repository
         {
             try
             {
-                IQueryable<TModelo> query = filtro == null ? _dbcontext.Set<TModelo>(): 
+                IQueryable<TModelo> query = filtro == null ? _dbcontext.Set<TModelo>() :
                     _dbcontext.Set<TModelo>().Where(filtro);
                 return query;
             }

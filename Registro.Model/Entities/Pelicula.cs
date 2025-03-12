@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices.Marshalling;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Registro.Model.Entities
+﻿namespace Registro.Model.Entities
 {
     public class Pelicula
     {

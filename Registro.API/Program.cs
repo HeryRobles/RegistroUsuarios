@@ -51,9 +51,15 @@ builder.Services.AddSwaggerGen(c =>
     c.AddSecurityRequirement(securityRequirement);
 });
 
-builder.Services.AddAuthorization(); 
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy => policy.RequireClaim("role", "Administrador"));
+
+    options.AddPolicy("LoggedUsers", policy => policy.RequireAuthenticatedUser());
+}); 
 
 builder.Services.InyectarDependencias(builder.Configuration);
+
 
 builder.Services.AddCors(options =>
 {
@@ -69,11 +75,15 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(opciones =>
+    {
+        opciones.SwaggerEndpoint("/swagger/v1/swagger.json", "Registro API V1");
+        opciones.EnablePersistAuthorization();
+    });
+
 }
 
 app.UseHttpsRedirection();
-
 
 app.UseCors("AllowBlazorApp");
 app.UseAuthentication();

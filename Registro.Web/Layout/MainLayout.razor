@@ -11,7 +11,7 @@
         <div class="top-row px-4">
             @if (usuarioAutenticado)
             {
-                <button class="nav-link btn btn-link" @onclick="CerrarSesion">Cerrar sesión</button>
+                <a href="/logon" class="nav-link">Cerrar Sesion</a>
             }
             else
             {
@@ -36,8 +36,8 @@
         usuarioAutenticado = authState.User.Identity.IsAuthenticated;
     }
 
-    private void CerrarSesion()
-    {
-        Navigation.NavigateTo("/logout");
-    }
+    // private void CerrarSesion()
+    // {
+    //     Navigation.NavigateTo("/logout");
+    // }
 }
