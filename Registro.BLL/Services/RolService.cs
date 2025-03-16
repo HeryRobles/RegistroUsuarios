@@ -27,7 +27,7 @@ namespace Registro.BLL.Services
             try
             {
                 var listaRoles = await _rolRepository.Consultar();
-                return _mapper.Map<List<RolDTO>>(listaRoles);
+                return _mapper.Map<List<RolDTO>>(listaRoles.ToList());
             }
             catch 
             {

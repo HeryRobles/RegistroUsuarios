@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using System.Text;
+using System.Net.Http;
 
 namespace Registro.Web.Repositories
 {

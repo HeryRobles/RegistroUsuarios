@@ -10,6 +10,7 @@ namespace Registro.BLL.Services
 {
     public interface IAuthService
     {
+       
     }
     public class AuthService : IAuthService
     {

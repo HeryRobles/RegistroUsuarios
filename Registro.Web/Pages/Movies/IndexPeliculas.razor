@@ -1,0 +1,50 @@
+﻿@page "/listadopeliculas"
+@inject IRepository repository
+
+<h3>Películas</h3>
+@if(Peliculas == null)
+{
+    <p>Cargado...</p>
+}else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Titulo</th>
+                <th>Fecha de Estreno</th>
+                <th>Genero</th>
+                <th>Actores</th>
+                <th>Director</th>
+                <th>Productor</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var pelicula in Peliculas)
+            {
+                <tr>
+                    <td>@pelicula.ImagenUrl</td>
+                    <td>@pelicula.Titulo</td>
+                    <td>@pelicula.Sinopsis</td>
+                    <td>@pelicula.Reseña</td>
+                    <td>@pelicula.TrailerUrl</td>
+                    <td>@pelicula.Calificacion</td>
+                    <td>
+                        <button class="btn btn-primary">Editar</button>
+                        <button class="btn btn-danger">Eliminar</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    public List<PeliculaDTO> Peliculas { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var responseHttp = await repository.Get<List<PeliculaDTO>>("/listadopeliculas");
+        Peliculas = responseHttp.Response;
+    }
+} 

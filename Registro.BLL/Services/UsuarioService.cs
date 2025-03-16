@@ -12,13 +12,11 @@ namespace Registro.BLL.Services
     public class UsuarioService : IUsuarioService
     {
         private readonly IGenericRepository<Usuario> _usuarioRepository;
-        private readonly IGenericRepository<Rol> _rolRepository;
         private readonly IMapper _mapper;
 
         public UsuarioService(IGenericRepository<Usuario> usuarioRepository, IGenericRepository<Rol> rolRepository, IMapper mapper)
         {
             _usuarioRepository = usuarioRepository;
-            _rolRepository = rolRepository;
             _mapper = mapper;
         }
 
@@ -47,19 +45,15 @@ namespace Registro.BLL.Services
         {
             try
             {
-                if (modelo.IdRol == 1 || modelo.IdRol == 2 || modelo.IdRol == 3)
-                
-                    throw new InvalidOperationException("El rol especificado no puede ser dado de alta");
-                
-                var usuarioModelo = _mapper.Map<Usuario>(modelo);
-                    var usuarioCreado = await _usuarioRepository.Crear(usuarioModelo);
-                    if (usuarioCreado.IdUsuario == 0)
-                    throw new InvalidOperationException("Error al crear el usuario");
+                var usuarioCreado = await _usuarioRepository.Crear(_mapper.Map<Usuario>(modelo));
+                if (usuarioCreado.IdUsuario == 0)
+                    throw new Exception("Error al crear el usuario");
 
-                    var usuarioConRol = await _usuarioRepository
-                        .Consultar(u => u.IdUsuario == usuarioCreado.IdUsuario);
+                var query = await _usuarioRepository.Consultar(u => 
+                u.IdUsuario == usuarioCreado.IdUsuario);
 
-                usuarioCreado = await usuarioConRol.Include(rol => rol.IdRolNavigation).FirstOrDefaultAsync();
+                usuarioCreado = query.Include(u => u.IdRolNavigation)
+                    .FirstOrDefault();
 
                 return _mapper.Map<UsuarioDTO>(usuarioCreado);
             }
@@ -68,98 +62,34 @@ namespace Registro.BLL.Services
                 throw new Exception("Error al dar de alta el usuario", ex);
             }
         }
-
-
-        /*En este método, el Administrador podrá asignar un rol a un usuario ya registrado, por 
-         * ejemplo si un usuario se registró como Cliente y el Administrador desea que sea Empleado
-         * o al reves, igual a un empleado lo podrá cambiar a Supervisor
-         */
-        public async Task<bool> AsignarRol(int usuarioId, int nuevoRolId)
-        {
-            try
-            {
-                var usuario = await _usuarioRepository.Obtener(u => u.IdUsuario == usuarioId);
-                if (usuario == null)
-                    throw new TaskCanceledException("El usuario no existe");
-
-                var rolExiste = await _rolRepository.Obtener(r => r.IdRol == nuevoRolId);
-                if (rolExiste == null)
-                    throw new TaskCanceledException("El rol especificado no existe");
-
-                usuario.IdRol = nuevoRolId;
-
-                bool respuesta = await _usuarioRepository.Editar(usuario);
-
-
-                return respuesta;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Error en la asignación de roles", ex);
-            }
-        }
-
-        /*En este método solo se podrá editar los datos del usuario, como el nombre, correo, rol y si está activo o no
-         * y será accesiblo solo por el administrador, supervisor y empleado.
-         */
+                
+       
         public async Task<bool> Editar(UsuarioDTO modelo, int idUsuarioActual, string rolUsuarioActual)
         {
             try
             {
                 var usuarioModelo = _mapper.Map<Usuario>(modelo);
 
-                var usuarioEncontrado = await _usuarioRepository.Obtener(u => u.IdUsuario == usuarioModelo.IdUsuario);
+                var usuarioEncontrado = await _usuarioRepository.Obtener(u => 
+                u.IdUsuario == usuarioModelo.IdUsuario);
 
                 if (usuarioEncontrado == null)
                     throw new TaskCanceledException("El usuario no existe");
 
-                // Validar permisos según el rol del usuario actual
-                if (rolUsuarioActual == "Cliente")
-                {
-                    // El cliente solo puede editar su propia contraseña
-                    if (usuarioEncontrado.IdUsuario != idUsuarioActual)
-                        throw new UnauthorizedAccessException("No tienes permiso para editar este usuario");
-
-                    usuarioEncontrado.Clave = usuarioModelo.Clave;
-                }
-                else if (rolUsuarioActual == "Supervisor" || rolUsuarioActual == "Empleado")
-                {
-                    // El Supervisor y empleado pueden editar su propio nombre, correo y contraseña
-                    if (usuarioEncontrado.IdUsuario != idUsuarioActual)
-                        throw new UnauthorizedAccessException("No tienes permiso para editar este usuario");
-
-                    usuarioEncontrado.NombreCompleto = usuarioModelo.NombreCompleto;
-                    usuarioEncontrado.Correo = usuarioModelo.Correo;
-                    usuarioEncontrado.Clave = usuarioModelo.Clave;
-                }
-                else if (rolUsuarioActual == "Administrador") //El Administrador puede editar cualquier usuario
-                {
-                    if (usuarioEncontrado.IdUsuario == idUsuarioActual)
-                    {
-                        
-                        usuarioEncontrado.NombreCompleto = usuarioModelo.NombreCompleto; //Excepto su propio Rol y estado
-                        usuarioEncontrado.Correo = usuarioModelo.Correo;
-                        usuarioEncontrado.Clave = usuarioModelo.Clave;
-                    }
-                    else
-                    {
-                        usuarioEncontrado.NombreCompleto = usuarioModelo.NombreCompleto;
-                        usuarioEncontrado.Correo = usuarioModelo.Correo;
-                        usuarioEncontrado.Clave = usuarioModelo.Clave;
-                        usuarioEncontrado.IdRol = usuarioModelo.IdRol;
-                        usuarioEncontrado.EsActivo = usuarioModelo.EsActivo;
-                    }
-                }
-                else
-                    throw new UnauthorizedAccessException("No tienes permiso para editar usuarios");
+                usuarioEncontrado.NombreCompleto = usuarioModelo.NombreCompleto;
+                usuarioEncontrado.Correo = usuarioModelo.Correo;
+                usuarioEncontrado.IdRol = usuarioModelo.IdRol;
+                usuarioEncontrado.Clave = usuarioModelo.Clave;
 
                 bool respuesta = await _usuarioRepository.Editar(usuarioEncontrado);
+                if(!respuesta)
+                    throw new Exception("Error al editar el usuario");
 
                 return respuesta;
             }
             catch (Exception ex)
             {
-                throw new Exception("Error al editar el usuario", ex);
+                throw;
             }
         }
 
@@ -175,11 +105,14 @@ namespace Registro.BLL.Services
 
                 bool respuesta = await _usuarioRepository.Eliminar(usuarioEncontrado);
 
+                if (!respuesta)
+                    throw new Exception("Error al eliminar el usuario");
+
                 return respuesta;
             }
-            catch (Exception ex)
+            catch 
             {
-                throw new Exception("Error al eliminar el usuario", ex);
+                throw;
             }
         }
     }

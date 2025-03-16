@@ -9,11 +9,11 @@ namespace Registro.API.Controllers.Peliculas
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class PeliculaController : ControllerBase
+    public class PeliculasController : ControllerBase
     {
         private readonly IPeliculaService _peliculaService;
 
-        public PeliculaController(IPeliculaService peliculaService)
+        public PeliculasController(IPeliculaService peliculaService)
         {
             _peliculaService = peliculaService;
         }
@@ -35,7 +35,7 @@ namespace Registro.API.Controllers.Peliculas
             return Ok(pelicula);
         }
 
-        [Authorize(Roles = "Administrador")]
+        //[Authorize(Roles = "Administrador")]
         [HttpPost("crear")]
         public async Task<ActionResult<PeliculaDTO>> Crear([FromBody] PeliculaDTO peliculaDTO)
         {
@@ -50,7 +50,7 @@ namespace Registro.API.Controllers.Peliculas
             }
         }
 
-        [Authorize(Roles = "Supervisor, Empleado, Administrador")]
+        //[Authorize(Roles = "Supervisor, Empleado, Administrador")]
         [HttpPut("editar/{id}")]
         public async Task<ActionResult<bool>> Editar(int id, [FromBody] PeliculaDTO peliculaDTO)
         {
@@ -68,7 +68,7 @@ namespace Registro.API.Controllers.Peliculas
             }
         }
 
-        [Authorize(Roles = "Administrador")]
+        //[Authorize(Roles = "Administrador")]
         [HttpDelete("eliminar/{id}")]
         public async Task<ActionResult<bool>> Eliminar(int id)
         {
@@ -83,7 +83,7 @@ namespace Registro.API.Controllers.Peliculas
             }
         }
 
-        [Authorize(Roles = "Cliente")]
+        //[Authorize(Roles = "Cliente")]
         [HttpPost("{id}/calificar")]
         public async Task<ActionResult<PeliculaDTO>> Calificar(int id, [FromBody] double calificacion)
         {
@@ -98,7 +98,7 @@ namespace Registro.API.Controllers.Peliculas
             }
         }
 
-        [Authorize(Roles = "Cliente")]
+        //[Authorize(Roles = "Cliente")]
         [HttpPost("{id}/comentar")]
         public async Task<ActionResult<PeliculaDTO>> Comentar(int id, [FromBody] ComentarioDTO comentarioDTO)
         {

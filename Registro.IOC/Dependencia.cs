@@ -23,11 +23,6 @@ namespace Registro.IOC
                 options.UseSqlServer(configuration.GetConnectionString("cadenaSQL"));
             });
 
-
-
-            
-            
-
             //DEPENDENCIAS DE LAS UTILERÍAS DE LA CAPA DE UTILIDADES PARA EL MAPPING
             services.AddAutoMapper(typeof(AutoMapperProfile));
 
@@ -43,7 +38,7 @@ namespace Registro.IOC
             services.AddScoped<IAuthService, AuthService>();
 
             //Repositorios Genericos
-            services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+            services.AddTransient(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
         }
     }

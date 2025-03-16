@@ -3,17 +3,18 @@ using Registro.API.Utilities;
 using Registro.BLL.Services.ServicesContracts;
 using Registro.DTO;
 using Microsoft.AspNetCore.Authorization;
+using Registro.BLL.Services;
 
 namespace Registro.API.Controllers.Usuarios
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UsuarioController : ControllerBase
+    public class UsuariosController : ControllerBase
     {
         private readonly IUsuarioService _usuarioService;
-        private readonly IJwtService _jwtService;
+        private readonly JwtService _jwtService;
 
-        public UsuarioController(IUsuarioService usuarioService, IJwtService jwtService)
+        public UsuariosController(IUsuarioService usuarioService, JwtService jwtService)
         {
             _usuarioService = usuarioService;
             _jwtService = jwtService;

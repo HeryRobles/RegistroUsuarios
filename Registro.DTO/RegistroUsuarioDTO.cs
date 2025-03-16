@@ -19,7 +19,6 @@ namespace Registro.DTO
         public int? IdRol { get; set; }
 
         public string? RolDescripcion { get; set; }
-        public string? Token { get; set; }  
 
     }
 }

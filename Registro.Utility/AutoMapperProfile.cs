@@ -44,10 +44,7 @@ namespace Registro.Utility
                 opt => opt.MapFrom(origen => origen.EsActivo == 1 ? true : false)
                 );
 
-            CreateMap<RegistroUsuarioDTO, Usuario>()
-                .ForMember(dest => dest.IdRolNavigation, opt => opt.Ignore())
-                .ForMember(dest => dest.EsActivo, opt => opt.Ignore())
-                .ForMember(dest => dest.FechaRegistro, opt => opt.Ignore());
+            
             #endregion Usuario
 
 

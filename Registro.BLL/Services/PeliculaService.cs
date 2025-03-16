@@ -23,7 +23,7 @@ namespace Registro.BLL.Services
             _mapper = mapper;
         }
 
-        public async Task<List<PeliculaDTO>> Lista()
+        public async Task<List<PeliculaDTO>> Lista() 
         {
             try
             {

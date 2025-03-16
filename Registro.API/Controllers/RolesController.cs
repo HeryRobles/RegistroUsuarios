@@ -10,11 +10,11 @@ namespace Registro.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class RolController : ControllerBase
+    public class RolesController : ControllerBase
     {
         private readonly IRolService _rolService;
 
-        public RolController(IRolService rolService)
+        public RolesController(IRolService rolService)
         {
             _rolService = rolService;
         }

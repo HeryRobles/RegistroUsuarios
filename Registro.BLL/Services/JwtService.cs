@@ -8,6 +8,10 @@ using System.Text;
 
 namespace Registro.BLL.Services
 {
+    public interface IJwtService
+    {
+        string GenerarToken(UsuarioDTO modelo);
+    }
     public class JwtService : IJwtService
     {
         private readonly IConfiguration _configuration;
