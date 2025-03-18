@@ -13,6 +13,7 @@ builder.Services.AddEndpointsApiExplorer();
 
 
 builder.Services.InyectarDependencias(builder.Configuration);
+
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Registro API", Version = "v1" });
@@ -45,9 +46,6 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddAuthorization();
 
 
-
-
-
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -77,11 +75,3 @@ app.MapControllers();
 
 app.Run();
 
-
-
-//builder.Services.AddAuthorization(options =>
-//{
-//    options.AddPolicy("AdminOnly", policy => policy.RequireClaim("role", "Administrador"));
-
-//    options.AddPolicy("LoggedUsers", policy => policy.RequireAuthenticatedUser());
-//}); 

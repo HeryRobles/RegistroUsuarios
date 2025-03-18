@@ -28,11 +28,11 @@ namespace Registro.Utility
                 opt => opt.MapFrom(origen => origen.EsActivo == true ? 1 : 0)
                 );
 
-            CreateMap<Usuario, RegistroUsuarioDTO>()
-                .ForMember(destino =>
-                destino.RolDescripcion,
-                opt => opt.MapFrom(origen => origen.IdRolNavigation !=null ? origen.IdRolNavigation.Nombre : null)
-                );
+            //CreateMap<Usuario, RegistroUsuarioDTO>()
+            //    .ForMember(destino =>
+            //    destino.RolDescripcion,
+            //    opt => opt.MapFrom(origen => origen.IdRolNavigation !=null ? origen.IdRolNavigation.Nombre : null)
+            //    );
 
             CreateMap<UsuarioDTO, Usuario>()
                 .ForMember(destino =>

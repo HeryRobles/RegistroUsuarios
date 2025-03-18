@@ -20,6 +20,7 @@ namespace Registro.DTO
 
         [Required(ErrorMessage = "Escribir contraseña")]
         [MinLength(6, ErrorMessage = "La contraseña debe tener al menos 6 caracteres.")]
+        [MaxLength(100)]
         public string? Clave { get; set; }
 
         public int? EsActivo { get; set; }

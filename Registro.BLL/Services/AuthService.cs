@@ -35,12 +35,12 @@ namespace Registro.BLL.Services
 
             var usuario = _mapper.Map<Usuario>(usuarioDTO);
 
+            if(usuario.IdRol == null || usuario.IdRol == 0)
+                usuario.IdRol = 4;
+
             usuario.EsActivo = true;
             usuario.FechaRegistro = DateTime.UtcNow;
             usuario.Clave = HashPassword(usuarioDTO.Clave);
-
-            // SE ASIGNA EL ROL "CLIENTE" POR DEFECTO, NO SE DEBE DE INCLUIR AL MOMENTO DE REGISTRARSE
-            usuario.IdRol = 4;
 
             var usuarioCreado = await _usuarioRepository.Crear(usuario);
             return _mapper.Map<UsuarioDTO>(usuarioCreado);

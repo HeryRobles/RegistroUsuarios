@@ -4,20 +4,35 @@ using Registro.BLL.Services.ServicesContracts;
 using Registro.DTO;
 using System;
 
-namespace Registro.API.Controllers
+namespace Registro.API.Controllers.Accesos
 {
     [Route("api/[controller]")]
     [ApiController]
     public class LoginController : ControllerBase
     {
-        private readonly AuthService _authService;
+        private readonly IAuthService _authService;
 
-        public LoginController(AuthService authService)
+        public LoginController(IAuthService authService)
         {
             _authService = authService;
         }
 
-        [HttpPost("login")]
+        [HttpPost("registrarse")]
+        public async Task<ActionResult> RegistrarUsuario([FromBody] UsuarioDTO model)
+        {
+            try
+            {
+                var usuarioCreado = await _authService.Registro(model);
+                return Ok(usuarioCreado);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { Mensaje = ex.Message });
+            }
+
+        }
+
+        [HttpPost("iniciosesion")]
         public async Task<ActionResult> IniciarSesion([FromBody] LoginDTO loginDTO)
         {
             try
