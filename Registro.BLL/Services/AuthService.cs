@@ -10,7 +10,8 @@ namespace Registro.BLL.Services
 {
     public interface IAuthService
     {
-       
+        Task<UsuarioDTO> Registro(UsuarioDTO usuarioDTO);
+        Task<TokenDTO> Login(LoginDTO loginDTO);
     }
     public class AuthService : IAuthService
     {
@@ -25,52 +26,51 @@ namespace Registro.BLL.Services
             _mapper = mapper;
         }
 
-        public async Task<UsuarioDTO> Registro(RegistroUsuarioDTO registroDTO)
+        public async Task<UsuarioDTO> Registro(UsuarioDTO usuarioDTO)
         {
             // VALIDACIÓN DE USUSARIO EXISTENTE
-            var existeUsuario = await _usuarioRepository.Obtener(u => u.Correo == registroDTO.Correo);
+            var existeUsuario = await _usuarioRepository.Obtener(u => u.Correo == usuarioDTO.Correo);
             if (existeUsuario != null)
                 throw new ArgumentException("El correo ya está registrado");
 
-            var usuario = _mapper.Map<Usuario>(registroDTO);
+            var usuario = _mapper.Map<Usuario>(usuarioDTO);
 
             usuario.EsActivo = true;
             usuario.FechaRegistro = DateTime.UtcNow;
-
-            usuario.Clave = HashPassword(registroDTO.Clave);
+            usuario.Clave = HashPassword(usuarioDTO.Clave);
 
             // SE ASIGNA EL ROL "CLIENTE" POR DEFECTO, NO SE DEBE DE INCLUIR AL MOMENTO DE REGISTRARSE
-            usuario.IdRol = registroDTO.IdRol ?? 4; 
+            usuario.IdRol = 4;
 
             var usuarioCreado = await _usuarioRepository.Crear(usuario);
             return _mapper.Map<UsuarioDTO>(usuarioCreado);
         }
 
-        public async Task<TokenDTO> Login(LoginDTO loginDTO)
+        public async Task<TokenDTO>Login(LoginDTO loginDTO)
         {
-            var usuario = await _usuarioRepository.Obtener(u => u.Correo == loginDTO.Correo);
+            var usuario = await _usuarioRepository.Obtener(u => u.Correo == loginDTO.Email);
 
-            if (usuario == null || !VerifyPassword(loginDTO.Clave, usuario.Clave))
-                throw new UnauthorizedAccessException("Credenciales inválidas");
+            if(usuario == null || !VerifyPassword(loginDTO.Pass, usuario.Clave))
+                throw new ArgumentException("Credenciales inválidas");
 
             var usuarioDTO = _mapper.Map<UsuarioDTO>(usuario);
 
             return new TokenDTO
             {
-                Token = _jwtService.GenerarToken(usuarioDTO),
-                Expiration = DateTime.UtcNow.AddHours(8).ToString("o")
+                Token = _jwtService.GenerarToken(loginDTO),
+                Expiration = DateTime.UtcNow.AddHours(5).ToString()
             };
         }
 
         private static string HashPassword(string password)
         {
-            byte[] hashBytes = SHA256.HashData(Encoding.UTF8.GetBytes(password));
-            return Convert.ToBase64String(hashBytes);
+            return BCrypt.Net.BCrypt.HashPassword(password);
+            
         }
 
         private static bool VerifyPassword(string password, string hashedPassword)
         {
-            return HashPassword(password) == hashedPassword;
+            return BCrypt.Net.BCrypt.Verify(password, hashedPassword);
         }
     }
 }

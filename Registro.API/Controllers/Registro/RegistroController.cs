@@ -1,7 +1,6 @@
 ﻿using Azure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Registro.API.Utilities;
 using Registro.BLL.Services;
 using Registro.BLL.Services.ServicesContracts;
 using Registro.DTO;
@@ -19,22 +18,21 @@ namespace Registro.API.Controllers.Registro
             _authService = authService;
         }
 
-        [HttpPost("registro")]
-        public async Task<IActionResult> RegistrarUsuario([FromBody] RegistroUsuarioDTO registroDTO)
+        [HttpPost]
+        public async Task<ActionResult> RegistrarUsuario([FromBody] UsuarioDTO model)
         {
             try
             {
-                var usuarioCreado = await _authService.Registro(registroDTO);
+                model.IdRol = 4;
+
+                var usuarioCreado = await _authService.Registro(model);
                 return Ok(usuarioCreado);
             }
             catch (ArgumentException ex)
             {
                 return BadRequest(new { Mensaje = ex.Message });
             }
-            catch (Exception)
-            {
-                return StatusCode(500, new { Mensaje = "Error interno del servidor" });
-            }
+            
         }
     }
 

@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Registro.BLL.Services.ServicesContracts;
 using Registro.DTO;
-using Registro.API.Utilities;
 using Microsoft.AspNetCore.Authorization;
 
 
@@ -18,27 +17,13 @@ namespace Registro.API.Controllers
         {
             _rolService = rolService;
         }
+
         [Authorize(Roles = "Administrador, Supervisor")]
         [HttpGet]
         [Route("Lista")]
-        public async Task<ActionResult<HttpResponseWrapper<List<RolDTO>>>> Lista()
+        public async Task<ActionResult<List<RolDTO>>> Lista()
         {
-            var response = new HttpResponseWrapper<List<RolDTO>>();
-
-            try
-            {
-                var listaRoles = await _rolService.Lista();
-                response.status = true;
-                response.value = listaRoles;
-
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                response.status = false;
-                response.HttpResponseMessage = ex.Message;
-                return BadRequest(response);
-            }
+            return Ok(await _rolService.Lista());
         }
     }
 }

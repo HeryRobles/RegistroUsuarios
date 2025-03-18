@@ -7,6 +7,9 @@ using Registro.BLL.Services.ServicesContracts;
 using Registro.BLL.Services;
 using Registro.BLL.Repository;
 using Registro.BLL.Repository.IRepository;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 
 
@@ -22,6 +25,19 @@ namespace Registro.IOC
             {
                 options.UseSqlServer(configuration.GetConnectionString("cadenaSQL"));
             });
+
+            object value = services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = false, 
+                        ValidateAudience = false, 
+                        ValidateLifetime = true,  
+                        ValidateIssuerSigningKey = true,  
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(configuration["Jwt:Key"]))
+                    };
+                });
 
             //DEPENDENCIAS DE LAS UTILERÍAS DE LA CAPA DE UTILIDADES PARA EL MAPPING
             services.AddAutoMapper(typeof(AutoMapperProfile));

@@ -1,12 +1,8 @@
 ﻿using AutoMapper;
-using Registro.BLL.Services.ServicesContracts;
 using Registro.BLL.Repository.IRepository;
+using Registro.BLL.Services.ServicesContracts;
 using Registro.DTO;
 using Registro.Model.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Registro.BLL.Services
 {
@@ -23,7 +19,7 @@ namespace Registro.BLL.Services
             _mapper = mapper;
         }
 
-        public async Task<List<PeliculaDTO>> Lista() 
+        public async Task<List<PeliculaDTO>> Lista()
         {
             try
             {

@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Registro.API.Utilities;
 using Registro.BLL.Services.ServicesContracts;
 using Registro.DTO;
 using Microsoft.AspNetCore.Authorization;
 using Registro.BLL.Services;
+using System.Security.Claims;
 
 namespace Registro.API.Controllers.Usuarios
 {
@@ -12,31 +12,36 @@ namespace Registro.API.Controllers.Usuarios
     public class UsuariosController : ControllerBase
     {
         private readonly IUsuarioService _usuarioService;
-        private readonly JwtService _jwtService;
 
-        public UsuariosController(IUsuarioService usuarioService, JwtService jwtService)
+        public UsuariosController(IUsuarioService usuarioService)
         {
             _usuarioService = usuarioService;
-            _jwtService = jwtService;
         }
 
         //[Authorize(Roles = "Administrador")]
         [HttpGet("lista")]
         public async Task<ActionResult<List<UsuarioDTO>>> Lista()
         {
-            var response = new HttpResponseWrapper<List<UsuarioDTO>>();
+            var response = new List<UsuarioDTO>();
 
+            var usuarios = await _usuarioService.Lista();
+            return Ok(response);
+       
+        }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<UsuarioDTO>> ObtenerUsuario(int id)
+        {
             try
             {
-                response.status = true;
-                response.value = await _usuarioService.Lista();
-                return Ok(response);
+                var usuario = await _usuarioService.Obtener(id);
+                if(usuario == null)
+                    return NotFound(new { message = "Usuario no encontrado." });
+                return Ok(usuario);
             }
             catch (Exception ex)
             {
-                response.status = false;
-                response.HttpResponseMessage = ex.Message;
-                return BadRequest(response);
+                return BadRequest(new { message = ex.Message });
             }
         }
 
@@ -44,105 +49,54 @@ namespace Registro.API.Controllers.Usuarios
         [HttpPost("crear")]
         public async Task<ActionResult<UsuarioDTO>> Crear([FromBody] UsuarioDTO usuario)
         {
-            var response = new HttpResponseWrapper<UsuarioDTO>();
 
             try
             {
-                response.status = true;
-                response.value = await _usuarioService.Crear(usuario);
-                return CreatedAtAction(nameof(Crear), new { id = response.value.IdUsuario }, response);
+                var usuarioCreado = await _usuarioService.Crear(usuario);
+                return CreatedAtAction(nameof(ObtenerUsuario), new { id = usuarioCreado.IdUsuario }, usuarioCreado);
             }
             catch (Exception ex)
             {
-                response.status = false;
-                response.HttpResponseMessage = ex.Message;
-                return BadRequest(response);
+                return BadRequest(new { message = ex.Message });
             }
         }
-
-        /*Este endpoint es el que se encarga de registrar un usuario
-         * este usuario se registra con el rol de cliente por defecto, el cual tendra acceso a el catalogo de peliculas
-         * y podrá comentar y calificarlas cuando inicie sesión.
-         * */
 
         //[Authorize]
         [HttpPut("editar/{id}")]
         public async Task<ActionResult<bool>> Editar(int id, [FromBody] UsuarioDTO usuario)
         {
-            var response = new HttpResponseWrapper<bool>();
+
+            if (id != usuario.IdUsuario)
+                return BadRequest(new { message = "El ID del usuario no coincide." });
 
             try
             {
-                var idUsuarioActual = int.Parse(User.Claims.FirstOrDefault(c => c.Type == "idUsuario")?.Value);
-                var rolUsuarioActual = User.Claims.FirstOrDefault(c => c.Type == "rol")?.Value;
+                var idUsuarioActual = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+                var rolUsuarioActual = User.FindFirst(ClaimTypes.Role)?.Value ?? string.Empty;
 
-                response.status = true;
-                response.value = await _usuarioService.Editar(usuario, idUsuarioActual, rolUsuarioActual);
-                return Ok(response);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                response.status = false;
-                response.HttpResponseMessage = ex.Message;
-                return Unauthorized(response);
+                var resultado = await _usuarioService.Editar(usuario, idUsuarioActual, rolUsuarioActual);
+                return Ok(resultado);
             }
             catch (Exception ex)
             {
-                response.status = false;
-                response.HttpResponseMessage = ex.Message;
-                return BadRequest(response);
+                return BadRequest(new { message = ex.Message });
             }
+           
         }
-
+        
         //[Authorize(Roles = "Administrador")]
-        [HttpPut("{id}/rol")]
-        public async Task<ActionResult<bool>> AsignarRol(int id, [FromQuery] int nuevoRolId)
-        {
-            var response = new HttpResponseWrapper<bool>();
-
-            try
-            {
-                response.status = true;
-                response.value = await _usuarioService.AsignarRol(id, nuevoRolId);
-
-                if (!response.value)
-                {
-                    response.status = false;
-                    response.HttpResponseMessage = "No se pudo asignar el rol al usuario.";
-                    return BadRequest(response);
-                }
-
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                response.status = false;
-                response.HttpResponseMessage = ex.Message;
-                return BadRequest(response);
-            }
-        }
-
-        //[Authorize(Roles = "Administrador")]
-        [HttpDelete("editar/{id}")]
+        [HttpDelete("eliminar/{id}")]
         public async Task<ActionResult<bool>> Eliminar(int id)
         {
-            var response = new HttpResponseWrapper<bool>();
 
             try
             {
-                response.status = true;
-                response.value = await _usuarioService.Eliminar(id);
-
-                if (!response.value)
-                    return NotFound(new { status = false, message = "Usuario no encontrado." });
-
-                return Ok(response);
+                var resultado = await _usuarioService.Eliminar(id);
+                return Ok(resultado);
             }
             catch (Exception ex)
             {
-                response.status = false;
-                response.HttpResponseMessage = ex.Message;
-                return BadRequest(response);
+                return BadRequest(new { message = ex.Message });
             }
         }
     }

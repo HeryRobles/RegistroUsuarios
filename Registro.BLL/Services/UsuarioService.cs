@@ -14,7 +14,7 @@ namespace Registro.BLL.Services
         private readonly IGenericRepository<Usuario> _usuarioRepository;
         private readonly IMapper _mapper;
 
-        public UsuarioService(IGenericRepository<Usuario> usuarioRepository, IGenericRepository<Rol> rolRepository, IMapper mapper)
+        public UsuarioService(IGenericRepository<Usuario> usuarioRepository, IMapper mapper)
         {
             _usuarioRepository = usuarioRepository;
             _mapper = mapper;
@@ -29,11 +29,10 @@ namespace Registro.BLL.Services
             {
                 var query = await _usuarioRepository.Consultar();
 
-                var usuarios = await query
-                    .Include(u => u.IdRolNavigation)
-                    .ToListAsync();
+                var listaUsuarios = await query.ToListAsync();
 
-                return _mapper.Map<List<UsuarioDTO>>(usuarios);
+                return _mapper.Map<List<UsuarioDTO>>(listaUsuarios);
+
             }
             catch (Exception ex)
             {
@@ -41,15 +40,33 @@ namespace Registro.BLL.Services
             }
         }
 
+        public async Task<UsuarioDTO> Obtener(int id)
+        {
+            try
+            {
+                var usuario = await _usuarioRepository.Obtener(p => p.IdUsuario == id);
+                if (usuario == null)
+                    throw new InvalidOperationException("El usuario no existe.");
+
+                return _mapper.Map<UsuarioDTO>(usuario);
+            }
+            catch
+            {
+                throw;
+            }
+        }
         public async Task<UsuarioDTO> Crear(UsuarioDTO modelo)
         {
             try
             {
+                if (modelo == null)
+                    throw new ArgumentNullException(nameof(modelo), "El modelo no puede ser nulo.");
+
                 var usuarioCreado = await _usuarioRepository.Crear(_mapper.Map<Usuario>(modelo));
                 if (usuarioCreado.IdUsuario == 0)
                     throw new Exception("Error al crear el usuario");
 
-                var query = await _usuarioRepository.Consultar(u => 
+                var query = await _usuarioRepository.Consultar(u =>
                 u.IdUsuario == usuarioCreado.IdUsuario);
 
                 usuarioCreado = query.Include(u => u.IdRolNavigation)
@@ -59,15 +76,17 @@ namespace Registro.BLL.Services
             }
             catch (Exception ex)
             {
-                throw new Exception("Error al dar de alta el usuario", ex);
+                throw;
             }
         }
-                
-       
+
         public async Task<bool> Editar(UsuarioDTO modelo, int idUsuarioActual, string rolUsuarioActual)
         {
             try
             {
+                if(modelo == null)
+                    throw new ArgumentNullException(nameof(modelo), "El modelo no puede ser nulo.");
+
                 var usuarioModelo = _mapper.Map<Usuario>(modelo);
 
                 var usuarioEncontrado = await _usuarioRepository.Obtener(u => 
@@ -93,7 +112,6 @@ namespace Registro.BLL.Services
             }
         }
 
-
         public async Task<bool> Eliminar(int id)
         {
             try
@@ -115,5 +133,7 @@ namespace Registro.BLL.Services
                 throw;
             }
         }
+
+        
     }
 }

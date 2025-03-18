@@ -18,12 +18,12 @@ namespace Registro.API.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> IniciarSesion([FromBody] LoginDTO loginDTO)
+        public async Task<ActionResult> IniciarSesion([FromBody] LoginDTO loginDTO)
         {
             try
             {
                 var token = await _authService.Login(loginDTO);
-                return Ok(token);
+                return Ok(new { Token = token });
             }
             catch (UnauthorizedAccessException ex)
             {

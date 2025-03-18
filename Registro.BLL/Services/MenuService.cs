@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using AutoMapper;
-using Registro.BLL.Services.ServicesContracts;
+﻿using AutoMapper;
 using Registro.BLL.Repository.IRepository;
+using Registro.BLL.Services.ServicesContracts;
 using Registro.DTO;
 using Registro.Model.Entities;
 
@@ -29,17 +23,17 @@ namespace Registro.BLL.Services
 
         public async Task<List<MenuDTO>> Lista(int idUsuario)
         {
-            IQueryable<Usuario> tbUsuario = await _usuarioRepository.Consultar(u=> u.IdUsuario == idUsuario);
+            IQueryable<Usuario> tbUsuario = await _usuarioRepository.Consultar(u => u.IdUsuario == idUsuario);
             IQueryable<MenuRol> tbMenuRol = await _menuRolRepository.Consultar();
             IQueryable<Menu> tbMenu = await _menuRepository.Consultar();
 
             try
             {
-                IQueryable<Menu>tbResultado = (from u in tbUsuario
-                                               join mr in tbMenuRol on u.IdRol equals mr.IdRol
-                                               join m in tbMenu on mr.IdMenu equals m.IdMenu
-                                               select m).AsQueryable();
-                
+                IQueryable<Menu> tbResultado = (from u in tbUsuario
+                                                join mr in tbMenuRol on u.IdRol equals mr.IdRol
+                                                join m in tbMenu on mr.IdMenu equals m.IdMenu
+                                                select m).AsQueryable();
+
                 var listaMenus = tbResultado.ToList();
                 return _mapper.Map<List<MenuDTO>>(listaMenus);
             }
