@@ -26,16 +26,18 @@ namespace Registro.IOC
                 options.UseSqlServer(configuration.GetConnectionString("cadenaSQL"));
             });
 
-            object value = services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
+                    var jwtKey = configuration["Jwt:Key"];
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
+                        
                         ValidateIssuer = false, 
                         ValidateAudience = false, 
                         ValidateLifetime = true,  
                         ValidateIssuerSigningKey = true,  
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(configuration["Jwt:Key"]))
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtKey!))
                     };
                 });
 
